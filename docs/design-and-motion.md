@@ -53,6 +53,7 @@ The globe turns once every 19 seconds. The DS initially faces forward, tilts bac
 
 ## Mobile and media
 
+- Reserve the full glass curve in the mobile header grid. Keep at least 8 px clear before the booking button and respect the right safe area. Show the full Book a call label and add its arrow when the side column has room.
 - Keep the desktop story order and interaction intent at phone widths. Use smaller video variants, art-directed stills and a shorter scroll travel to fit the viewport.
 - Reserve space for all media with a set aspect ratio. Keep the poster visible until the hero video renders a frame. Play any automatic preview muted and inline, with a visible pause control. Provide Play when autoplay is unavailable.
 - Maintain legible text when mobile browser chrome changes height. Check orientation change, swipes, back navigation, layout reflow and long titles.
