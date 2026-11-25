@@ -1,0 +1,118 @@
+.cursor {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+  visibility: hidden;
+  --ring-ink: rgb(255 255 255 / 78%);
+  --halo: rgb(255 255 255 / 25%);
+  --amber: #f6b744;
+  --rose: #fb7185;
+  --indigo: #8785ff;
+}
+.cursor::backdrop {
+  background: transparent;
+  pointer-events: none;
+}
+:global([data-theme="light"]) .cursor {
+  --ring-ink: #926a26;
+  --halo: rgb(168 122 41 / 21%);
+  --amber: #cd860e;
+  --rose: #db325d;
+  --indigo: #5854da;
+}
+@media (any-hover: hover) and (any-pointer: fine) {
+  .cursor[data-visible] {
+    visibility: visible;
+  }
+}
+.hotspot {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+.ring,
+.dot,
+.trail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+.ring {
+  width: 34px;
+  height: 34px;
+}
+.ring::before,
+.ring::after {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+.trail {
+  background: var(--brand);
+  box-shadow: 0 0 3px rgb(204 152 40 / 38%);
+  visibility: hidden;
+}
+.cursor[data-visible][data-trailing] .trail {
+  visibility: visible;
+}
+.ring::before,
+.ring::after {
+  content: "";
+  transition: opacity 140ms ease;
+}
+.ring::before {
+  inset: 1px;
+  border: 1px solid var(--ring-ink);
+  box-shadow: 0 0 6px 1px var(--halo);
+}
+.ring::after {
+  background: conic-gradient(
+    from 15deg,
+    transparent 0 26deg,
+    var(--amber) 100deg,
+    var(--rose) 178deg,
+    var(--indigo) 235deg,
+    transparent 289deg 306deg,
+    var(--amber) 332deg,
+    transparent 360deg
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 2px),
+    #000 calc(100% - 1.6px)
+  );
+  opacity: 0;
+}
+.cursor[data-interactive] .ring::before {
+  opacity: 0.18;
+}
+.cursor[data-visible][data-interactive] .ring::after {
+  opacity: 1;
+  animation: hover-orbit 1.5s linear infinite;
+}
+@keyframes hover-orbit {
+  to {
+    transform: rotate(1turn);
+  }
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand);
+  box-shadow: 0 0 4px rgb(204 152 40 / 48%);
+}

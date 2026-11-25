@@ -1,0 +1,613 @@
+.header {
+  position: sticky;
+  z-index: 6;
+  top: 0;
+  height: var(--header-height);
+  flex: none;
+  color: var(--ink);
+  --nav-accent: var(--accent);
+  --notch-width: calc(var(--mark-size) * 1.68);
+  --notch-height: calc(var(--mark-size) + 0.6rem);
+}
+.header[data-over-film="true"] {
+  margin-bottom: calc(-1 * var(--header-height));
+}
+.header[data-over-film="true"][data-scroll="top"] {
+  color: #fcfaf4;
+  --nav-accent: var(--bright-gold);
+}
+
+.surface,
+.emblemGlass {
+  position: absolute;
+  top: 0;
+  height: var(--notch-height);
+  pointer-events: none;
+}
+.surface {
+  inset-inline: 0;
+  background: var(--header-glass);
+  backdrop-filter: blur(16px) saturate(115%);
+  /* The bar and the dipped camera shoulder share one pane of glass. */
+  mask:
+    linear-gradient(#000 0 0) top / 100% var(--header-height) no-repeat,
+    url("/brand/emblem-notch.svg") center bottom / var(--notch-width)
+      calc(var(--notch-height) - var(--header-height) + 1px) no-repeat;
+  transition: opacity 220ms ease;
+}
+.header[data-over-film="true"][data-scroll="top"] .surface {
+  opacity: 0;
+}
+.emblemGlass {
+  left: 50%;
+  width: calc(var(--mark-size) * 1.48);
+  border-radius: 0 0 50% 50% / 0 0 76% 76%;
+  background: linear-gradient(180deg, rgb(14 14 15 / 65%), rgb(10 10 11 / 91%));
+  box-shadow: inset 0 -1px rgb(255 243 208 / 13%);
+  backdrop-filter: blur(9px);
+  transform: translateX(-50%);
+}
+
+.bar {
+  position: relative;
+  display: grid;
+  width: min(calc(100% - 2 * clamp(1rem, 5.5vw, 6rem)), 84rem);
+  height: 100%;
+  margin-inline: auto;
+  grid-template-columns: minmax(0, 1fr) var(--mark-size) minmax(0, 1fr);
+  grid-template-rows: var(--header-height);
+  align-items: center;
+  pointer-events: none;
+}
+.bar > * {
+  pointer-events: auto;
+}
+.brand {
+  grid-area: 1 / 2;
+  align-self: start;
+  margin-top: 0.15rem;
+  width: var(--mark-size);
+  height: var(--mark-size);
+}
+.mark {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 46%;
+  background: transparent;
+  color: inherit;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+}
+.mark:disabled {
+  cursor: default;
+}
+.mark:active:enabled {
+  cursor: grabbing;
+}
+.markPoster {
+  object-fit: contain;
+  pointer-events: none;
+}
+.markCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+.markCanvas[data-ready="true"] {
+  opacity: 1;
+}
+.mark:has(.markCanvas[data-ready="true"]) .markPoster {
+  opacity: 0;
+}
+.desktopNav {
+  display: none;
+}
+.actions {
+  display: flex;
+  grid-area: 1 / 3;
+  justify-self: end;
+  align-items: center;
+  gap: 0.1rem;
+}
+.desktopTheme {
+  display: none;
+}
+.header .bookingButton {
+  min-height: 2.75rem;
+  gap: 0.5rem;
+  padding: 0.58rem clamp(0.65rem, 1.55vw, 1.5rem);
+  font-size: clamp(0.79rem, 1.35vw, 0.9rem);
+  white-space: nowrap;
+}
+/* Keep the film-glass treatment legible on the light header and drawer. */
+:global([data-theme="light"])
+  .header:is([data-scroll="raised"], [data-over-film="false"])
+  .bookingButton,
+:global([data-theme="light"]) .dialog .bookingButton {
+  background-color: #30291d;
+}
+.bookingButton::before {
+  z-index: 1;
+}
+.bookingLabel,
+.bookingArrow {
+  position: relative;
+  z-index: 1;
+}
+.bookingWash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 145%;
+  height: 360%;
+  background: linear-gradient(90deg, #f5cb76, #ffe8af 54%, #f9d38d);
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(45deg) scaleX(var(--wipe, 0));
+  transition: transform 500ms ease;
+}
+@media (hover: hover) {
+  .header .bookingButton:hover {
+    --wipe: 1;
+    background: var(--bright-gold);
+    color: #261a08;
+    box-shadow: 0 5px 17px rgb(204 152 40 / 34%);
+    transform: translateY(-2px);
+  }
+}
+.header .bookingButton:is(:focus-visible, :active) {
+  --wipe: 1;
+  background: var(--bright-gold);
+  color: #261a08;
+}
+.header .bookingButton:active {
+  transform: translateY(1px);
+}
+@media (max-width: 23rem) {
+  .actions .bookingArrow {
+    display: none;
+  }
+}
+
+.themeButton,
+.menuButton,
+.closeButton,
+.serviceToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.themeButton,
+.closeButton {
+  width: 2.75rem;
+  border-radius: 50%;
+}
+.themeButton {
+  position: relative;
+}
+.themeButton::before {
+  position: absolute;
+  inset: 0.24rem;
+  border: 1px solid color-mix(in srgb, currentColor 38%, transparent);
+  border-radius: inherit;
+  content: "";
+  transition:
+    background 180ms ease,
+    border-color 180ms ease;
+}
+.themeButton svg,
+.closeButton svg {
+  display: block;
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+  transition: transform 240ms ease;
+}
+.darkIcon,
+:global([data-theme="light"]) .lightIcon {
+  display: none;
+}
+:global([data-theme="light"]) .darkIcon {
+  display: inline;
+}
+.themeButton:is(:hover, :focus-visible) {
+  color: var(--nav-accent);
+}
+.themeButton:is(:hover, :focus-visible)::before {
+  border-color: var(--brand);
+  background: rgb(204 152 40 / 12%);
+}
+.themeButton:is(:hover, :focus-visible) svg {
+  transform: rotate(15deg);
+}
+.menuButton {
+  width: 2.75rem;
+  grid-area: 1 / 1;
+  justify-self: start;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 5%, transparent);
+  transition:
+    border-color 180ms ease,
+    transform 220ms ease;
+}
+.menuGlyph {
+  position: relative;
+  display: block;
+  width: 1.34rem;
+  height: 1rem;
+}
+.menuGlyph i {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: center;
+  transition:
+    transform 260ms ease,
+    width 220ms ease,
+    opacity 150ms ease;
+}
+.menuGlyph i:nth-child(1) {
+  top: 1px;
+}
+.menuGlyph i:nth-child(2) {
+  top: 7px;
+  width: 74%;
+}
+.menuGlyph i:nth-child(3) {
+  top: 13px;
+  width: 48%;
+  background: var(--nav-accent);
+}
+.menuButton:is(:hover, :focus-visible) {
+  border-color: var(--nav-accent);
+}
+.menuButton:is(:hover, :focus-visible) .menuGlyph i {
+  width: 100%;
+}
+.menuButton[aria-expanded="true"] .menuGlyph i:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.menuButton[aria-expanded="true"] .menuGlyph i:nth-child(2) {
+  opacity: 0;
+}
+.menuButton[aria-expanded="true"] .menuGlyph i:nth-child(3) {
+  width: 100%;
+  transform: translateY(-6px) rotate(-45deg);
+}
+.menuButton:active {
+  transform: scale(0.95);
+}
+
+.header :focus-visible {
+  outline-color: var(--nav-accent);
+}
+.navList,
+.submenu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.navLink,
+.submenu a {
+  color: inherit;
+  text-decoration: none;
+}
+.serviceGroup {
+  position: relative;
+}
+.serviceRow {
+  display: flex;
+  align-items: center;
+}
+.serviceToggle {
+  width: 1.55rem;
+}
+.serviceToggle svg {
+  width: 0.7rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  transition: transform 180ms ease;
+}
+.serviceGroup[data-expanded="true"] .serviceToggle svg {
+  transform: rotate(180deg);
+}
+.submenu[hidden] {
+  display: none;
+}
+.submenu a {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.94rem;
+}
+.submenu a:is(:hover, :focus-visible, [aria-current="page"]) {
+  color: var(--accent);
+  background: var(--soft);
+}
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: clip;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  --drawer-width: 50%;
+  --drawer-padding: clamp(0.75rem, 3.6vw, 1.85rem);
+  --drawer-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --nav-accent: var(--accent);
+}
+.dialog::backdrop {
+  background: rgb(8 8 10 / 48%);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+.dialog[data-shown]::backdrop {
+  opacity: 1;
+}
+.drawerBacking,
+.dialogPanel {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--drawer-width);
+  transform: translateX(-101%);
+}
+.drawerBacking {
+  background: var(--brand);
+  pointer-events: none;
+  transition: transform 310ms var(--drawer-ease) 65ms;
+}
+.dialogPanel {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 4.5dvh, 3rem);
+  padding: max(0.8rem, env(safe-area-inset-top)) var(--drawer-padding)
+    max(1.25rem, env(safe-area-inset-bottom))
+    max(var(--drawer-padding), env(safe-area-inset-left));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--panel);
+  border-right: 1px solid color-mix(in srgb, var(--brand) 48%, transparent);
+  transition: transform 290ms var(--drawer-ease);
+}
+.dialog[data-shown] .drawerBacking {
+  transform: translateX(0);
+  transition: transform 460ms var(--drawer-ease);
+}
+.dialog[data-shown] .dialogPanel {
+  transform: translateX(0);
+  transition: transform 530ms var(--drawer-ease) 85ms;
+}
+.dialogTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+.drawerLogo {
+  display: block;
+  width: clamp(3.5rem, 16vw, 4.875rem);
+  height: auto;
+  object-fit: contain;
+}
+.closeButton {
+  flex: none;
+  border: 1px solid var(--line);
+  transition:
+    color 180ms ease,
+    border-color 180ms ease;
+}
+.closeButton:is(:hover, :focus-visible) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.mobileNav .navList > li {
+  border-bottom: 1px solid var(--line);
+  opacity: 0;
+  transform: translateX(-0.55rem);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+.dialog[data-shown] .mobileNav .navList > li {
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity 260ms ease var(--link-delay, 150ms),
+    transform 310ms var(--drawer-ease) var(--link-delay, 150ms);
+}
+.mobileNav .navList > li:nth-child(2) {
+  --link-delay: 185ms;
+}
+.mobileNav .navList > li:nth-child(3) {
+  --link-delay: 220ms;
+}
+.mobileNav .navList > li:nth-child(4) {
+  --link-delay: 255ms;
+}
+.mobileNav .navLink {
+  display: flex;
+  min-width: 0;
+  min-height: 3.35rem;
+  flex: 1;
+  align-items: center;
+  font-size: clamp(1.2rem, 4.5vw, 1.85rem);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+.mobileNav .serviceToggle {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: none;
+}
+.mobileNav .navLink:is(:hover, :focus-visible, [aria-current="page"]) {
+  color: var(--accent);
+}
+.mobileNav .submenu {
+  padding-bottom: 0.65rem;
+}
+.mobileNav .submenu a {
+  padding-inline: 0.6rem;
+  border-inline-start: 2px solid var(--brand);
+  overflow-wrap: anywhere;
+  font-size: 0.86rem;
+}
+.drawerFooter {
+  display: grid;
+  justify-items: stretch;
+  gap: 0.6rem;
+  margin-top: auto;
+}
+.drawerFooter .themeButton {
+  width: fit-content;
+  max-width: 100%;
+  height: auto;
+  padding-inline: 0.15rem;
+  border-radius: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+.drawerFooter .themeButton::before {
+  content: none;
+}
+.drawerFooter .lightIcon,
+:global([data-theme="light"]) .drawerFooter .darkIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+:global([data-theme="light"]) .drawerFooter .lightIcon {
+  display: none;
+}
+.drawerFooter .bookingButton {
+  width: 100%;
+}
+
+@media (min-width: 53rem) {
+  .desktopTheme {
+    display: block;
+  }
+  .menuButton {
+    display: none;
+  }
+  .desktopNav {
+    display: block;
+    grid-area: 1 / 1;
+    justify-self: start;
+  }
+  .desktopNav .navList {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.95rem, 1.9vw, 2.1rem);
+  }
+  .desktopNav .navLink {
+    position: relative;
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    font-size: clamp(0.875rem, 1.08vw, 0.98rem);
+    font-weight: 650;
+    transition: color 200ms ease;
+  }
+  .desktopNav .navLink::after {
+    position: absolute;
+    inset: auto 0 0.24rem;
+    height: 2.5px;
+    border-radius: 1px;
+    background: var(--brand);
+    content: "";
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .desktopNav .navLink:is(:hover, :focus-visible, [aria-current="page"]),
+  .desktopNav .serviceGroup[data-expanded="true"] .serviceRow {
+    color: var(--nav-accent);
+  }
+  .desktopNav .navLink:is(:hover, :focus-visible, [aria-current="page"])::after,
+  .desktopNav .serviceGroup[data-expanded="true"] .navLink::after {
+    transform: scaleX(1);
+  }
+  .desktopNav .submenu {
+    position: absolute;
+    z-index: 2;
+    top: 100%;
+    left: -0.85rem;
+    min-width: 13.5rem;
+    padding: 0.35rem;
+    border: 1px solid var(--line);
+    border-radius: 0.55rem;
+    background: var(--panel);
+    color: var(--ink);
+    box-shadow: 0 0.65rem 1.6rem rgb(0 0 0 / 18%);
+  }
+  .desktopNav .submenu a {
+    border-radius: 0.28rem;
+  }
+  .actions {
+    justify-self: end;
+    gap: 0.86rem;
+  }
+}
+:global([data-motion="paused"])
+  .header
+  :is(
+    .bookingButton,
+    .bookingWash,
+    .drawerBacking,
+    .dialogPanel,
+    .menuButton,
+    .menuGlyph i,
+    .navList > li
+  ),
+:global([data-motion="paused"]) .dialog::backdrop {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .header
+    :is(
+      .surface,
+      .bookingButton,
+      .bookingWash,
+      .drawerBacking,
+      .dialogPanel,
+      .menuButton,
+      .menuGlyph i,
+      .serviceToggle svg,
+      .themeButton svg,
+      .navList > li
+    ),
+  .dialog::backdrop,
+  .desktopNav .navLink::after {
+    transition: none;
+  }
+}
