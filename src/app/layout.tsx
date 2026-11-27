@@ -1,12 +1,12 @@
 import "@fontsource-variable/manrope";
 import "lenis/dist/lenis.css";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SiteScroll } from "@/components/site-scroll";
 import { StudioCursor } from "@/components/studio-cursor";
-import { MotionToggle, StudioMotionProvider } from "@/components/studio-motion";
+import { StudioMotionProvider } from "@/components/studio-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { pages, site } from "@/content/site";
 import { indexable } from "@/lib/metadata";
@@ -37,17 +37,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <main id="main-content" tabIndex={-1}>
               {children}
             </main>
-            <footer className="site-footer">
-              <div className="container footer-content">
-                <Link href="/">
-                  <strong>{site.name}</strong>
-                  <span>{site.location}</span>
-                </Link>
-                <a href={`mailto:${site.email}`}>{site.email}</a>
-                <MotionToggle className="footer-motion" showLabel />
-                {!indexable && <small>Working preview · Draft copy</small>}
-              </div>
-            </footer>
+            <SiteFooter />
           </StudioMotionProvider>
         </ThemeProvider>
       </body>

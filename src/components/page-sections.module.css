@@ -1,0 +1,99 @@
+.sectionIntro {
+  display: grid;
+  align-items: end;
+  justify-items: start;
+  gap: 0.85rem 3rem;
+  margin-bottom: clamp(1.55rem, 4.7vw, 4rem);
+}
+
+.contactBand {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: clamp(24rem, 43vw, 36rem);
+  align-items: center;
+  overflow: clip;
+  background: #181115;
+}
+
+.bandImage {
+  object-fit: cover;
+  object-position: 76% center;
+  opacity: 0.9;
+}
+
+.contactBand::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      #130d11 4%,
+      #160f12eb 31%,
+      #1a111682 58%,
+      #110e1230 100%
+    ),
+    linear-gradient(0deg, #140e13ad, transparent 48%);
+  content: "";
+  pointer-events: none;
+}
+
+.contactInner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: start;
+  gap: clamp(0.85rem, 2vw, 1.38rem);
+  padding-block: clamp(3.4rem, 7.25vw, 7.25rem);
+}
+
+.contactInner h2 {
+  max-width: 14ch;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem clamp(0.95rem, 2.7vw, 2rem);
+  margin-top: 0.25rem;
+}
+
+.route {
+  min-width: 0;
+}
+
+@media (min-width: 52rem) {
+  .sectionIntro {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.58fr);
+  }
+
+  .sectionIntro > a {
+    justify-self: end;
+  }
+
+  .bandImage {
+    object-position: 68% 53%;
+  }
+}
+
+@media (max-width: 51.99rem) {
+  .contactBand::after {
+    background:
+      linear-gradient(95deg, #140d12ec, #140d128f 88%),
+      linear-gradient(0deg, #140d12bf, transparent 45%);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :global(html:not([data-motion="paused"])) .route > :first-child {
+    animation: route-entrance 320ms cubic-bezier(0.2, 0.76, 0.3, 1) both;
+  }
+}
+
+@keyframes route-entrance {
+  from {
+    transform: translateY(0.58rem);
+    opacity: 0.84;
+  }
+}

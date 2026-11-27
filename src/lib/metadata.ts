@@ -9,11 +9,15 @@ export function absoluteUrl(path: string) {
   return new URL(path, site.url).href;
 }
 
-export function pageMetadata(page: {
-  path: string;
-  title: string;
-  description: string;
-}): Metadata {
+export function pageMetadata(
+  page: { path: string; title: string; description: string },
+  image: { url: string; alt: string; width?: number; height?: number } = {
+    url: showreelPoster.socialImage,
+    width: showreelPoster.width,
+    height: showreelPoster.height,
+    alt: showreelPoster.alt,
+  },
+): Metadata {
   return {
     title: `${page.title} | ${site.name}`,
     description: page.description,
@@ -25,14 +29,7 @@ export function pageMetadata(page: {
       url: page.path,
       title: page.title,
       description: page.description,
-      images: [
-        {
-          url: showreelPoster.socialImage,
-          width: showreelPoster.width,
-          height: showreelPoster.height,
-          alt: showreelPoster.alt,
-        },
-      ],
+      images: [image],
     },
     twitter: { card: "summary_large_image" },
   };

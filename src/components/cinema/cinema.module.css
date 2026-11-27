@@ -1,0 +1,111 @@
+.display,
+.heading {
+  margin: 0;
+  font-family: "Big Shoulders", "Manrope Variable", sans-serif;
+  font-weight: 700;
+  line-height: 0.95;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.display {
+  font-size: clamp(3.55rem, 9vw, 9rem);
+  letter-spacing: -0.025em;
+}
+
+.heading {
+  font-size: clamp(2.7rem, 6.3vw, 6.3rem);
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  max-width: 40ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  line-height: 1.68;
+  text-wrap: pretty;
+}
+
+.litSet {
+  --ink: #faf1e5;
+  --muted: #cec2b6;
+  --line: #554239;
+  --accent: #efbd78;
+  --page: #130e0e;
+  --panel: #211817;
+  color-scheme: dark;
+  color: var(--ink);
+  background: var(--page);
+}
+
+.lineLink {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 0.28em;
+}
+
+.lineLink svg {
+  flex: none;
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--accent);
+  transition: transform 220ms ease;
+}
+
+.lineLink:is(:hover, :focus-visible) svg {
+  transform: translate(2px, -2px);
+}
+
+.opticalPlane {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+}
+
+.opticalPlane::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: 0.8rem;
+  background: radial-gradient(
+    ellipse at var(--focus-light, 50%) 0%,
+    #ffd3971f,
+    transparent 60%
+  );
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .opticalPlane[data-interactive] {
+    transition: transform 520ms cubic-bezier(0.18, 0.72, 0.27, 1);
+  }
+
+  .opticalPlane[data-interactive][data-aimed] {
+    transform: perspective(1040px) rotateX(var(--focus-pitch))
+      rotateY(var(--focus-yaw));
+    transition-duration: 320ms;
+  }
+
+  .opticalPlane[data-interactive][data-aimed]::after {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lineLink svg {
+    transition: none;
+  }
+  .lineLink:is(:hover, :focus-visible) svg {
+    transform: none;
+  }
+}

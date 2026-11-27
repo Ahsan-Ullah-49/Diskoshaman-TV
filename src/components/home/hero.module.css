@@ -44,6 +44,64 @@
     rgb(9 9 11 / 86%) 100%
   );
 }
+/* Fine film grain over the reel, matching the studio story. */
+.hero::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  content: "";
+  pointer-events: none;
+}
+:global([data-motion="running"]) .hero::after {
+  animation: hero-grain 0.9s steps(4) infinite;
+}
+@keyframes hero-grain {
+  25% {
+    background-position: -42px 18px;
+  }
+  50% {
+    background-position: 27px -36px;
+  }
+  75% {
+    background-position: -15px 49px;
+  }
+}
+
+/*
+ * Entrance: the copy rises out of a slight 3D tilt on first paint. It is CSS
+ * so the hero never waits for scripts, and it always ends fully visible.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  :global(html:not([data-motion="paused"]))
+    :is(.eyebrow, .title, .description, .signature, .actions, .foot) {
+    animation: hero-rise 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  :global(html:not([data-motion="paused"])) .title {
+    animation-delay: 0.08s;
+  }
+  :global(html:not([data-motion="paused"])) .description {
+    animation-delay: 0.22s;
+  }
+  :global(html:not([data-motion="paused"])) .signature {
+    animation-delay: 0.3s;
+  }
+  :global(html:not([data-motion="paused"])) .actions {
+    animation-delay: 0.38s;
+  }
+  :global(html:not([data-motion="paused"])) .foot {
+    animation-delay: 0.55s;
+  }
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: perspective(50rem) translateY(1.6rem) rotateX(-22deg);
+  }
+}
+
 .copy {
   width: min(calc(100% - 2 * var(--gutter)), 100rem);
   margin: auto;
@@ -66,18 +124,64 @@
 .lead {
   max-width: 18ch;
 }
-/* Shared font metrics and one overlapping grid cell keep every ending on the same baseline. */
+/*
+ * Shared font metrics and one overlapping grid cell keep every ending on the
+ * same baseline. Letters turn on a drum just behind the text, so each ending
+ * flips up from below in 3D.
+ */
 .wordSlot {
   display: inline-grid;
+  /* One flexible track, so the column follows the slot width the cycle sets. */
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
   color: var(--bright-gold);
+  text-shadow:
+    0 2px 18px #0006,
+    0 0 1.6rem rgb(231 186 96 / 32%);
+  perspective: 40rem;
 }
 .word {
   grid-area: 1 / 1;
   white-space: nowrap;
+  transform-style: preserve-3d;
 }
 .word:not(:first-child) {
   visibility: hidden;
   opacity: 0;
+}
+.wordLetter {
+  display: inline-block;
+  transform-origin: 50% 50% -0.42em;
+  backface-visibility: hidden;
+}
+/* With motion paused only the first ending takes space, so the line stays centred. */
+:global([data-motion="paused"]) .word:not(:first-child) {
+  display: none;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0 0 clamp(0.9rem, 2vw, 1.35rem);
+  color: #f0d08c;
+  font:
+    700 clamp(0.74rem, 1.1vw, 0.92rem)/1.2 "Manrope Variable",
+    Arial,
+    sans-serif;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 10px #000c;
+}
+.eyebrow::before,
+.eyebrow::after {
+  width: clamp(1.2rem, 4vw, 2.6rem);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--bright-gold));
+  content: "";
+}
+.eyebrow::after {
+  background: linear-gradient(90deg, var(--bright-gold), transparent);
 }
 .signatureMeasure,
 .countMeasure {
@@ -86,9 +190,9 @@
 .description {
   max-width: 80ch;
   margin: clamp(1rem, 2.1vw, 1.75rem) auto 0;
-  font-size: clamp(1.02rem, 1.6vw, 1.45rem);
-  font-weight: 600;
-  line-height: 1.45;
+  font-size: clamp(1rem, 1.5vw, 1.36rem);
+  font-weight: 520;
+  line-height: 1.55;
   text-wrap: balance;
   color: #fffaf0;
   text-shadow: 0 1px 10px #000b;
@@ -226,6 +330,71 @@
   display: none;
 }
 
+.scrollCue {
+  display: none;
+}
+/* Only where the view counts leave clear room in the middle of the foot. */
+@media (min-width: 75rem) and (min-height: 40rem) {
+  .foot {
+    position: relative;
+  }
+  .scrollCue {
+    position: absolute;
+    bottom: max(1.4rem, env(safe-area-inset-bottom));
+    left: 50%;
+    display: grid;
+    justify-items: center;
+    gap: 0.55rem;
+    color: #f3e6cb;
+    font:
+      700 0.72rem/1 "Manrope Variable",
+      Arial,
+      sans-serif;
+    letter-spacing: 0.28em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transform: translateX(-50%);
+    transition: color 200ms ease;
+  }
+  .scrollCue:is(:hover, :focus-visible) {
+    color: var(--bright-gold);
+  }
+}
+.scrollTrack {
+  position: relative;
+  width: 1.45rem;
+  height: 2.3rem;
+  border: 1.5px solid rgb(255 248 233 / 62%);
+  border-radius: 999px;
+}
+.scrollDot {
+  position: absolute;
+  top: 0.4rem;
+  left: 50%;
+  width: 0.28rem;
+  height: 0.5rem;
+  margin-left: -0.14rem;
+  border-radius: 999px;
+  background: var(--bright-gold);
+}
+:global([data-motion="running"]) .scrollDot {
+  animation: scroll-hint 1.8s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+}
+@keyframes scroll-hint {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.2rem);
+  }
+  30% {
+    opacity: 1;
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: translateY(0.9rem);
+  }
+}
+
 .playback {
   display: grid;
   flex: none;
@@ -282,7 +451,28 @@
     letter-spacing: 0.035em;
   }
   .copy {
-    padding-top: clamp(3.25rem, 9svh, 5.4rem);
+    padding-top: clamp(2.6rem, 7svh, 5rem);
+  }
+  .eyebrow {
+    gap: 0.5rem;
+    margin-bottom: 0.7rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+  }
+  .eyebrow::before,
+  .eyebrow::after {
+    width: 0.9rem;
+  }
+  /* Keep both actions on one row on phones. */
+  .actions {
+    gap: 0.6rem;
+  }
+  .actions > a {
+    --pill-icon-size: 2.2rem;
+    min-height: 3rem;
+    gap: 0.6rem;
+    padding-inline-start: 1rem;
+    font-size: 0.86rem;
   }
 }
 @media (max-width: 22rem) {
@@ -312,7 +502,9 @@
   .lead {
     max-width: none;
   }
+  /* On one line the ending hugs "brand" while the slot width follows each word. */
   .wordSlot {
+    justify-items: start;
     text-align: start;
   }
 }

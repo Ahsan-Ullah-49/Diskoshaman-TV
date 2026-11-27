@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { heroCopy, heroReel } from "@/content/home";
 import { pages, showreelPoster } from "@/content/site";
 import { gsap, useGSAP } from "@/lib/motion";
 import { useVisible } from "@/lib/use-visible";
+import { PillLink } from "../pill-link";
 import { MotionToggle, useStudioMotion } from "../studio-motion";
 import { SocialViews } from "./social-views";
 import styles from "./hero.module.css";
@@ -56,23 +56,89 @@ function StudioSignature({ playing }: { playing: boolean }) {
   );
 }
 
+/** Re-measure the headline endings after fonts load and when the viewport settles. */
+function useLayoutVersion() {
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    let timer = 0;
+    const bump = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setVersion((value) => value + 1), 180);
+    };
+    void document.fonts?.ready.then(bump);
+    window.addEventListener("resize", bump);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", bump);
+    };
+  }, []);
+  return version;
+}
+
 function Headline({ playing }: { playing: boolean }) {
   const slot = useRef<HTMLSpanElement>(null);
+  const layoutVersion = useLayoutVersion();
 
   useGSAP(
     () => {
-      if (!playing || !slot.current) return;
-      const words = Array.from(slot.current.children);
+      const holder = slot.current;
+      if (!playing || !holder) return;
+      const words = Array.from(holder.children) as HTMLElement[];
       if (words.length < 2) return;
+      const lettersOf = (word: HTMLElement) => word.children;
+      const widths = words.map((word) => word.offsetWidth);
+
+      // The slot follows the current word's width so the line stays centred.
+      gsap.set(holder, { width: widths[0] });
+      gsap.set(words.slice(1), { autoAlpha: 1 });
+      words.slice(1).forEach((word) => {
+        gsap.set(lettersOf(word), { rotationX: -95, opacity: 0 });
+      });
+
+      // Each ending tips its letters up and away while the next flips up from below.
+      // The cycle ends on the first word again, so each repeat starts with a full hold.
       const cycle = gsap.timeline({ repeat: -1 });
       words.forEach((word, index) => {
-        const next = words[(index + 1) % words.length];
+        const nextIndex = (index + 1) % words.length;
+        const next = words[nextIndex];
         cycle
-          .to(word, { autoAlpha: 0, duration: 0.16, ease: "sine.in" }, "+=2.45")
-          .to(next, { autoAlpha: 1, duration: 0.22, ease: "sine.out" });
+          .to(
+            lettersOf(word),
+            {
+              rotationX: 95,
+              opacity: 0,
+              duration: 0.5,
+              ease: "power2.in",
+              stagger: 0.028,
+            },
+            "+=2.3",
+          )
+          .fromTo(
+            lettersOf(next),
+            { rotationX: -95, opacity: 0 },
+            {
+              rotationX: 0,
+              opacity: 1,
+              duration: 0.72,
+              ease: "back.out(1.7)",
+              stagger: 0.034,
+              // Without this, the closing flip back to the first word would hide it at the start.
+              immediateRender: false,
+            },
+            "<0.22",
+          )
+          .to(
+            holder,
+            { width: widths[nextIndex], duration: 0.62, ease: "power3.inOut" },
+            "<",
+          );
       });
     },
-    { scope: slot, dependencies: [playing], revertOnUpdate: true },
+    {
+      scope: slot,
+      dependencies: [playing, layoutVersion],
+      revertOnUpdate: true,
+    },
   );
 
   return (
@@ -86,7 +152,11 @@ function Headline({ playing }: { playing: boolean }) {
       <span ref={slot} className={styles.wordSlot} aria-hidden="true">
         {heroCopy.endings.map((word) => (
           <span key={word} className={styles.word}>
-            {word}
+            {Array.from(word).map((letter, index) => (
+              <span key={index} className={styles.wordLetter}>
+                {letter}
+              </span>
+            ))}
           </span>
         ))}
       </span>
@@ -145,26 +215,25 @@ export function StudioHero() {
         />
       </div>
       <div className={styles.copy}>
+        <p className={styles.eyebrow}>{pages.home.title}</p>
         <Headline playing={playing} />
         <p className={styles.description}>{heroCopy.description}</p>
         <StudioSignature playing={playing} />
         <div className={styles.actions}>
-          <Link
-            className="button button-cinematic button-gold"
-            href={pages.work.path}
-          >
-            Our Work <span aria-hidden="true">↗</span>
-          </Link>
-          <Link
-            className="button button-cinematic button-glass"
-            href={pages.contact.path}
-          >
-            Contact Us <span aria-hidden="true">→</span>
-          </Link>
+          <PillLink href={pages.work.path}>Our Work</PillLink>
+          <PillLink href={pages.contact.path} variant="secondary" arrow="right">
+            Contact Us
+          </PillLink>
         </div>
       </div>
       <div className={styles.foot}>
         <SocialViews enabled={enabled} />
+        <a href="#our-story" className={styles.scrollCue}>
+          <span className={styles.scrollTrack} aria-hidden="true">
+            <span className={styles.scrollDot} />
+          </span>
+          Scroll
+        </a>
         <MotionToggle className={styles.playback} onPlay={playReel} />
       </div>
     </section>

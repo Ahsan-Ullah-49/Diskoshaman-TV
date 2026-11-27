@@ -20,7 +20,20 @@ npm ci
 npm run dev
 ```
 
-The preview includes the shared header and theme switch, the homepage showreel and the ten existing page URLs. Edit the hero headline, reel sources and published social totals in [home.ts](../src/content/home.ts). The scroll feel and fine-pointer enhancement are controlled by SiteScroll and StudioCursor. The studio's interactive three-part emblem and original artwork live in `public/brand/`. Edit other page content in [site.ts](../src/content/site.ts) and [services.ts](../src/content/services.ts). The PRD tracks the remaining portfolio, service media and form work.
+The preview includes all ten existing page URLs, with featured screenings above the 31-film archive. Home introduces the same films through a scroll-led reveal and pairs its service index with a 3D production lens. The Services preview opens the existing five landing pages. The survey is on Home and the newsletter is in the footer. Edit the hero headline, reel sources and published social totals in [home.ts](../src/content/home.ts). SiteScroll and StudioCursor control scroll feel and the fine-pointer enhancement. The studio's interactive three-part emblem and original artwork live in `public/brand/`.
+
+| To edit | File |
+| --- | --- |
+| A film title, credit, Vimeo ID or Home featured selection | [projects.ts](../src/content/projects.ts) |
+| Work opening film selection | [work-page.tsx](../src/features/work/work-page.tsx) |
+| Film poster | Place an optimised WebP at `public/media/work/<project-slug>.webp` |
+| Homepage brand logos | [brand-logos.ts](../src/content/brand-logos.ts) and `public/media/brand-logos/` |
+| Service copy, media and related films | [services.ts](../src/content/services.ts) and [service-details.ts](../src/content/service-details.ts) |
+| Producer profile and social links | [studio.ts](../src/content/studio.ts) |
+| Page titles, descriptions and site settings | [site.ts](../src/content/site.ts) |
+| Form fields and feedback | [form-fields.ts](../src/features/contact/form-fields.ts) |
+
+Copy [.env.example](../.env.example) to `.env.local` for provider testing. Use the verified 20-minute Calendly URL, an approved test inbox for preview enquiries and approved survey and newsletter test endpoints. Without these settings, the local preview shows the email booking action and labels the forms as demos. See the [integration configuration](technical-plan.md#integration-configuration).
 
 Run `npm run format:check`, `npm run lint`, `npm run typecheck` and `npm run build` before review. Use `npm run format` to apply the repository formatter.
 

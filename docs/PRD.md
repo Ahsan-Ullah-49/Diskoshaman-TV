@@ -21,7 +21,7 @@ Keep the existing pages and features in the first design. Review additions and r
 
 | Area | Requirements |
 | --- | --- |
-| Home | Keep the existing showreel, rotating headline and introduction. Place Our Work and Contact Us under the introduction and booking in the header. Show the published YouTube, TikTok and Instagram totals at the lower left of the hero. Feature existing work and services further down the page. |
+| Home | Keep the existing showreel, rotating headline and introduction. Place Our Work and Contact Us under the introduction and booking in the header. Show the published YouTube, TikTok and Instagram totals at the lower left of the hero. Follow the opening with the published studio story and its original portrait-format film. Place the 16 published brand logos in an interactive scene immediately after the story, followed by Selected work and Production services. |
 | Work | Preserve the existing portfolio. Use a curated grid with readable project titles and posters and open films in the quick-play overlay. Keep the current page as the portfolio entry point. |
 | Services | Retain the current service content and the five live service landing pages. Give each service a motion-led example using relevant video or an animated treatment. Show treatment options in the working preview and link to relevant existing work where useful. |
 | About | Retain the existing studio and producer copy. Use existing photos or behind-the-scenes imagery where it helps explain the studio. |
@@ -58,9 +58,9 @@ The brief also proposes **AUD 50 per month** for ongoing oversight across compan
 | --- | --- |
 | Brand kit | Client to supply brand assets and colour values. Use visible brand cues as a provisional basis for the working preview. |
 | Services motion | Present a short video treatment and an animated treatment in the working preview. Record the selected approach before applying it across the Services page. |
-| Booking | Client to provide the exact Calendly event URL, or the developer to verify the existing event URL. Confirm that it opens the intended 20-minute event before publishing booking links. |
+| Booking | Supply the exact 20-minute Calendly event URL. The old Contact page's embeds point to a 30-minute event. The preview offers email booking while this is pending. |
 | Content and media | The preview uses the existing hero reel. Verify playback on the chosen managed platform and finish the wider asset inventory. Hammad reviews new copy and any new assets before they go live. |
-| Retained forms | Confirm how the existing survey and newsletter submit, where responses go and how each acknowledges completion. Test the enquiry delivery to the supplied address. |
+| Retained forms | The original Elementor survey and newsletter fields are inventoried. Confirm the destinations and completion settings, connect the approved adapters and test enquiry delivery to the supplied address. |
 | Launch | Review the production candidate and secure Hammad's final approval against the [QA and launch plan](qa-and-launch.md). |
 
 ## Launch acceptance

@@ -1,0 +1,485 @@
+/*
+ * About: deep night-blue black with tilted gold orbits, a nod to the globe in
+ * the studio emblem. Glass frames and cards carry the people and the process.
+ */
+.hero,
+.story,
+.producer,
+.motto,
+.process {
+  --ink: #f6f1e8;
+  --muted: #b8b3ab;
+  --accent: #efbd78;
+  --line: rgb(255 255 255 / 12%);
+  position: relative;
+  isolation: isolate;
+  color: var(--ink);
+  background: #07080c;
+  color-scheme: dark;
+}
+
+.hero {
+  overflow: clip;
+  padding-block: calc(var(--header-height) + clamp(2.5rem, 7vw, 5rem))
+    clamp(3.5rem, 7vw, 6rem);
+  background:
+    radial-gradient(55% 60% at 74% 50%, rgb(70 90 140 / 14%), transparent 70%),
+    radial-gradient(40% 50% at 20% 30%, rgb(204 152 40 / 7%), transparent 70%),
+    #07080c;
+}
+
+.heroGrid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-items: center;
+  gap: clamp(2.2rem, 5vw, 4.5rem);
+}
+
+.heroCopy {
+  display: grid;
+  justify-items: start;
+  gap: clamp(1.1rem, 2.4vw, 1.6rem);
+  min-width: 0;
+}
+
+.lede {
+  max-width: 50ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(1.02rem, 1.3vw, 1.18rem);
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+/* Studio still in a glass frame with an orbit ring turning around it. */
+.heroFrame,
+.portraitFrame {
+  position: relative;
+  min-width: 0;
+}
+
+.heroFrame::before,
+.heroFrame::after {
+  position: absolute;
+  z-index: -1;
+  inset: -9% -7%;
+  border: 1px solid rgb(231 186 96 / 32%);
+  border-radius: 50%;
+  content: "";
+  transform: rotate(-14deg) scaleY(0.42);
+  pointer-events: none;
+}
+
+.heroFrame::after {
+  inset: -16% -13%;
+  border-color: rgb(231 186 96 / 16%);
+  transform: rotate(-8deg) scaleY(0.36);
+}
+
+.still,
+.portrait {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 1.6rem;
+  background: #111318;
+  box-shadow:
+    0 2.4rem 5rem rgb(0 0 0 / 55%),
+    0 0 4rem rgb(204 152 40 / 10%);
+}
+
+.still {
+  aspect-ratio: 4 / 3;
+}
+
+.still img,
+.portrait img {
+  object-fit: cover;
+}
+
+/* Story */
+
+.story {
+  padding-block: clamp(4rem, 8vw, 7rem);
+  border-top: 1px solid var(--line);
+}
+
+.storyGrid {
+  display: grid;
+  align-items: start;
+  gap: clamp(1.6rem, 4vw, 4rem);
+}
+
+.storyCopy {
+  display: grid;
+  gap: 1.2rem;
+  min-width: 0;
+}
+
+.storyCopy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.8;
+}
+
+.storyCopy .statement {
+  color: var(--ink);
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-weight: 560;
+  line-height: 1.55;
+  letter-spacing: -0.015em;
+}
+
+.pillars {
+  display: grid;
+  gap: 1rem;
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+
+.pillar {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  padding: clamp(1.5rem, 3vw, 2.4rem);
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 11%);
+  border-radius: 1.5rem;
+  background: linear-gradient(
+    160deg,
+    rgb(255 255 255 / 6%),
+    rgb(255 255 255 / 1.5%)
+  );
+  box-shadow: inset 0 1px rgb(255 255 255 / 9%);
+  backdrop-filter: blur(18px);
+  transition:
+    border-color 320ms ease,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* A small orbit glints in the corner of a card under the pointer. */
+.pillar::after {
+  position: absolute;
+  top: -40%;
+  right: -25%;
+  width: 70%;
+  aspect-ratio: 1;
+  border: 1px solid rgb(231 186 96 / 40%);
+  border-radius: 50%;
+  content: "";
+  opacity: 0;
+  transform: rotate(-20deg) scaleY(0.45);
+  transition: opacity 420ms ease;
+  pointer-events: none;
+}
+
+.pillar:hover {
+  border-color: rgb(231 186 96 / 40%);
+  transform: translateY(-4px);
+}
+
+.pillar:hover::after {
+  opacity: 1;
+}
+
+.number {
+  background: linear-gradient(180deg, #fff1cf, #efbd78 50%, #cc9828);
+  background-clip: text;
+  color: transparent;
+  font-family: "Big Shoulders", "Manrope Variable", sans-serif;
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.number {
+  font-size: clamp(2.4rem, 4.5vw, 3.4rem);
+}
+
+.pillar h3 {
+  margin: 0;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  letter-spacing: -0.02em;
+}
+
+.pillar p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+/* Producer */
+
+.producer {
+  padding-block: clamp(4rem, 8vw, 7rem);
+  border-top: 1px solid var(--line);
+  background:
+    radial-gradient(45% 55% at 20% 50%, rgb(204 152 40 / 8%), transparent 70%),
+    #07080c;
+}
+
+.producerGrid {
+  display: grid;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+
+.portrait {
+  aspect-ratio: 4 / 5;
+}
+
+.portrait figcaption {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  display: grid;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 1rem;
+  background: rgb(10 10 14 / 50%);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+  backdrop-filter: blur(14px);
+}
+
+.portrait figcaption span {
+  color: var(--accent);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.producerCopy {
+  display: grid;
+  gap: 1.2rem;
+  min-width: 0;
+}
+
+.producerCopy > p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.producerQuote {
+  position: relative;
+  margin: 0.4rem 0 0.2rem;
+  padding-inline-start: 1.4rem;
+  border-inline-start: 2px solid var(--brand);
+}
+
+.producerQuote p {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  font-style: italic;
+  font-weight: 560;
+  line-height: 1.5;
+}
+
+/* Motto band */
+
+.motto {
+  overflow: clip;
+  padding-block: clamp(5rem, 12vw, 9rem);
+  border-top: 1px solid var(--line);
+}
+
+.mottoInner {
+  position: relative;
+  z-index: 1;
+}
+
+.mottoInner blockquote {
+  max-width: 62rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.mottoInner p {
+  margin: 0;
+  background: linear-gradient(
+    100deg,
+    #f6f1e8 0%,
+    #f6f1e8 35%,
+    #ffe3a3 48%,
+    #f6f1e8 62%,
+    #f6f1e8 100%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  color: transparent;
+  font-family: "Big Shoulders", "Manrope Variable", sans-serif;
+  font-size: clamp(1.8rem, 3.6vw, 3.3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  text-wrap: balance;
+  text-transform: uppercase;
+}
+
+/* A slow gold glint passes across the motto. */
+:global([data-motion="running"]) .mottoInner p {
+  animation: motto-glint 6s ease-in-out infinite;
+}
+
+@keyframes motto-glint {
+  0% {
+    background-position: 100% 0;
+  }
+  60%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+.mottoInner footer {
+  margin-top: 1.4rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+/* Process timeline */
+
+.process {
+  padding-block: clamp(4rem, 8vw, 7rem);
+  border-top: 1px solid var(--line);
+}
+
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 2rem;
+  margin: clamp(2.2rem, 4vw, 3.2rem) 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The thread that joins the steps. */
+.timeline::before {
+  position: absolute;
+  top: 1.6rem;
+  bottom: 1.6rem;
+  left: 1.6rem;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgb(231 186 96 / 70%),
+    rgb(231 186 96 / 10%)
+  );
+  content: "";
+}
+
+.timeline li {
+  position: relative;
+  display: grid;
+  gap: 0.6rem;
+  padding-inline-start: 4.6rem;
+}
+
+.node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  width: 3.2rem;
+  height: 3.2rem;
+  place-items: center;
+  border: 1px solid rgb(231 186 96 / 50%);
+  border-radius: 50%;
+  background: #0d0f14;
+  box-shadow: 0 0 1.4rem rgb(204 152 40 / 22%);
+  color: var(--accent);
+  font-family: "Big Shoulders", "Manrope Variable", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.timeline h3 {
+  margin: 0.55rem 0 0;
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+  letter-spacing: -0.02em;
+}
+
+.timeline p {
+  max-width: 38ch;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.processActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.6rem;
+}
+
+@media (min-width: 52rem) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  }
+
+  .storyGrid {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  }
+
+  .pillars {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .producerGrid {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  /* On wide screens the steps run left to right along one gold thread. */
+  .timeline {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.4rem;
+  }
+
+  .timeline::before {
+    top: 1.6rem;
+    right: 8%;
+    bottom: auto;
+    left: 1.6rem;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgb(231 186 96 / 70%),
+      rgb(231 186 96 / 10%)
+    );
+  }
+
+  .timeline li {
+    padding-inline-start: 0;
+    padding-top: 4.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pillar,
+  .pillar::after {
+    transition: none;
+  }
+
+  .pillar:hover {
+    transform: none;
+  }
+
+  .mottoInner p {
+    animation: none;
+  }
+}

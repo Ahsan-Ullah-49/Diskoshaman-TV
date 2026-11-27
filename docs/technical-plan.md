@@ -9,9 +9,11 @@ The starter uses Next.js 16, React, npm, CSS Modules, CSS custom properties, ESL
 | Location | Responsibility |
 | --- | --- |
 | `src/app/` | App Router pages, shared layout, metadata, errors and any approved route handler |
-| `src/components/` | Shared controls and layout primitives with real callers |
-| `src/features/work/` | Project grid, Watch dialog and film playback |
-| `src/components/home/` | Hero reel, headline and view counters |
+| `src/components/` | Shared controls and layout primitives with real callers, including `PillLink` for every call-to-action button |
+| `src/features/work/` | Featured film selection, project archive, Watch dialog and film playback |
+| `src/features/services/` | Service previews, media controls and editorial service page layouts |
+| `src/components/cinema/` | Shared cinematic type and media treatments, pointer-controlled frames and the lazy Three.js production lens |
+| `src/components/home/` | Hero reel, headline, view counters, studio story, brand reel, featured work and Home service index |
 | `src/features/contact/` | Enquiry form, booking link and server-only provider code |
 | `src/content/` | Typed site settings, projects, services and page copy |
 | `src/app/globals.css` | Global styles and typography, colour and spacing tokens |
@@ -38,7 +40,13 @@ The header loads Three.js and `public/brand/studio-emblem.glb` on demand. The mo
 
 CSS tokens drive both themes. `next-themes` applies the dark default or the stored light preference before paint. The header uses a native modal dialog for the phone menu.
 
-For route transitions, use Next.js navigation links with React View Transition boundaries where the installed release and target browsers support the desired effect. Keep the nav outside animated page content. First prove one main route transition in a production-mode demo, including direct loads and back navigation. Use CSS entry or native navigation as fallback. Use the current framework guide for the chosen version and keep the design functional without a transition. [Next.js view transitions](https://nextjs.org/docs/app/guides/view-transitions), [React ViewTransition](https://react.dev/reference/react/ViewTransition)
+Edit the homepage copy and Vimeo reference in [home.ts](../src/content/home.ts) and the layout in [studio-story.tsx](../src/components/home/studio-story.tsx). The original cover is `public/media/story-poster.webp`. StudioStory renders the complete static section on the server. StoryMotion adds the 3D sequence with GSAP: the title flip, the film dolly into its sticky desktop column, the lead word reveal and a pointer lean on fine pointers. Each tween runs from an offset state to the stylesheet layout, so reverting the context when motion pauses restores the finished set. StoryFilm mounts the Vimeo embed in view, uses the provider's playback and caption controls and releases it when the portrait leaves view. Keep the published copy available in server-rendered HTML. [Original film](https://vimeo.com/1057763335/729712b3c6), [Vimeo player](https://github.com/vimeo/player.js)
+
+Interior scenes use a 320 ms CSS entrance on direct loads and Next.js route changes. The shared motion preference suppresses it. The Home film stage uses a reversible GSAP crop and perspective composition over regular document scrolling. The film archive keeps all titles in the rendered HTML and uses a native disclosure for the overflow.
+
+The Home brand reel imports its Three.js renderer when the stage enters the viewport with motion enabled. It uses shared frame geometry, instanced metal fittings and the original compressed logo artwork. The centre spindle reuses the header's `studio-emblem.glb` in the reel scene. Scroll, selection, pointer and resize events request frames until the scene settles, then the globe turns at a lower frame rate. On exit or pause it releases the scene and GPU resources. The rendered HTML includes the still stage and a native disclosure for all the artwork.
+
+The Home service lens lazy-loads an existing Three.js dependency after its panel enters a fine-pointer viewport with motion enabled. It uses instanced grip geometry and the local `public/media/studio/on-set.webp` still as an optical texture. It draws during pointer easing and resize, then stops. On exit or pause it disposes of the geometry, scene resources and renderer. The rendered HTML holds a still aperture for the fallback.
 
 ## Search and indexing
 
@@ -55,7 +63,7 @@ Use one managed provider for both roles. The developer verifies the existing Vim
 
 1. **Test the opening.** Identify the current hero reel asset or embed and keep that reel for this release. Verify playback and a lighter mobile variant using the same reel. Load its poster first. Use a Vimeo-backed muted inline preview if the account, public-use approval and measured speed support it. Give a background embed a site-level play and pause control if its own controls are hidden. [Vimeo background and Chromeless playback](https://help.vimeo.com/hc/en-us/articles/12426285089681-About-embedding-background-and-Chromeless-videos), [Vimeo direct playback links](https://help.vimeo.com/hc/en-us/articles/12426150952593-How-to-access-my-video-s-direct-links)
 2. **Test full films.** Render server-side poster and project context. Mount one player when a visitor opens the Watch overlay. Attempt playback and expose Play if the browser requires an additional gesture. Verify captions and playback controls. Keep the loading state until the player is ready, handle failure with the poster and a recovery action, and stop and remove the player when the dialog closes or its route changes. [Vimeo Player SDK](https://github.com/vimeo/player.js)
-3. **Check domains and access.** Confirm embeds for the approved preview and production hostnames and check real phones. Verify the hosting account's plan, privacy options and rights for any direct playback URLs before committing to a delivery path. Use a stable preview hostname or approved test media for domain-restricted films. Keep an approved poster and watch link or retry path available when the provider is blocked. [Vimeo embed settings](https://help.vimeo.com/hc/en-us/articles/12426259908881-How-to-embed-my-video), [embedding features by plan](https://help.vimeo.com/hc/en-us/articles/12426275096337-Embedding-features-by-plan-type)
+3. **Check domains and access.** Confirm embeds for the approved preview and production hostnames and check real phones. Verify the hosting account's plan, privacy options and rights for any direct playback URLs before committing to a delivery path. Use a stable preview hostname or approved test media for domain-restricted films. Keep the poster and an on-site retry available when the provider is blocked. Do not link viewers to the provider site; the embed sets `vimeo_logo=0`, and the account’s embed settings should also hide the Vimeo logo, share and watch-later buttons where the plan allows. [Vimeo embed settings](https://help.vimeo.com/hc/en-us/articles/12426259908881-How-to-embed-my-video), [embedding features by plan](https://help.vimeo.com/hc/en-us/articles/12426275096337-Embedding-features-by-plan-type)
 
 ## Enquiry and tracking
 
@@ -69,6 +77,16 @@ Provide direct booking and project enquiry. Use the first-design hierarchy in th
 ## Survey and newsletter
 
 Carry both features over from the current site. Before connecting them, inventory their current fields, validation, confirmation text, data destinations and provider settings. Preserve the existing response and subscription workflows using verified settings. Use test destinations in preview and verify the live integrations during cutover.
+
+## Integration configuration
+
+`CALENDLY_EVENT_URL` takes the verified 20-minute Calendly event URL. The Contact section offers an email booking action while the event is pending. A click on the configured Calendly event emits `booking_clicked`. Record a completed booking after the calendar integration confirms it.
+
+The enquiry preview uses a Resend adapter at `POST /api/enquiry/`. Set `RESEND_API_KEY`, `ENQUIRY_FROM_EMAIL` and `ENQUIRY_TO_EMAIL` to enable it. Use an approved test inbox on preview deployments. Set the production recipient to `hammadchaudhry@diskoshaman.tv` after an authorised delivery test. Resend receives a stable idempotency key across unchanged retries. The site reports success after Resend accepts the request. [Resend idempotency](https://resend.com/docs/dashboard/emails/idempotency-keys)
+
+The retained forms use `POST /api/survey/` and `POST /api/newsletter/`. Set `SURVEY_ENDPOINT` and `NEWSLETTER_ENDPOINT` to approved HTTPS adapters for the existing workflows. An adapter receives `{ id, form, values }` and an `Idempotency-Key` header. Set the matching `*_ENDPOINT_TOKEN` to add bearer authentication. An adapter returns a successful status after accepting the response or subscription. Unconfigured preview forms display a labelled demo acknowledgement. Confirm the source destinations, consent settings and confirmation text with the site owner before connecting production.
+
+`CONVERSION_ENDPOINT` is an optional HTTPS collector for `booking_clicked` and `enquiry_accepted`. The collector receives only the event name and a stable event ID. Deduplicate on that ID or its matching `Idempotency-Key` header. Use `CONVERSION_ENDPOINT_TOKEN` for bearer authentication.
 
 ## Preview and production
 

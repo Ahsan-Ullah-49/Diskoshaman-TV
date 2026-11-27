@@ -34,7 +34,7 @@ export const pages = {
       "Explore Diskoshaman TV's production work across brand stories, commercials, corporate films, social video and long-form projects.",
     heading: "Our work",
     intro:
-      "From brand and corporate films to social content and long-form productions, explore the kinds of work our Perth studio makes.",
+      "Brand films, corporate productions and documentaries from our Perth studio.",
   },
   services: {
     slug: "video-production-services",
@@ -43,7 +43,7 @@ export const pages = {
     title: "Video Production Services in Perth",
     description:
       "Explore Perth videography, photography and editing services for corporate, promotional, brand and social projects across Australia.",
-    heading: "Video production services",
+    heading: "Production services",
     intro:
       "Our Perth studio handles videography, photography, editing and delivery for clients in Western Australia and across the country.",
   },
@@ -65,7 +65,7 @@ export const pages = {
     title: "Contact Our Perth Video Production Studio",
     description:
       "Get in touch with Diskoshaman TV in Perth about video production, photography, editing or a 20-minute discovery call.",
-    heading: "Talk to us about your project",
+    heading: "Contact us",
     intro:
       "Tell us what you want to make, who it’s for and when you need it. We’ll work with you to find the right approach.",
   },

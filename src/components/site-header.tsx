@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import { bookingPath, pages } from "@/content/site";
 import { ScrollTrigger, useGSAP } from "@/lib/motion";
 import { HeaderNavigation } from "./header-navigation";
+import { PillLink } from "./pill-link";
 import { StudioMark } from "./brand/studio-mark";
 import styles from "./site-header.module.css";
 
@@ -15,18 +15,14 @@ const desktopNavigation = "(min-width: 53rem)";
 
 function BookingLink({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <Link
-      className={`button button-cinematic button-gold ${styles.bookingButton}`}
+    <PillLink
       href={bookingPath}
+      className={styles.bookingButton}
       aria-label="Book a 20-minute call"
       onNavigate={onNavigate}
     >
-      <i className={styles.bookingWash} aria-hidden="true" />
-      <span className={styles.bookingLabel}>Book a call</span>
-      <span className={styles.bookingArrow} aria-hidden="true">
-        ↗
-      </span>
-    </Link>
+      Book a call
+    </PillLink>
   );
 }
 

@@ -1,0 +1,255 @@
+/*
+ * Contact: a near-black page with gold signal lines flowing behind it, the
+ * title and ways to reach the studio up top, then two glass cards for the
+ * call and the enquiry.
+ */
+.page {
+  --ink: #f7f1e6;
+  --muted: #bcb5aa;
+  --accent: #efbd78;
+  --line: rgb(255 255 255 / 16%);
+  /* Form fields read these, so inputs sit as dark glass inside the card. */
+  --page: rgb(255 255 255 / 3%);
+  --panel: rgb(255 255 255 / 6%);
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  padding-block: calc(var(--header-height) + clamp(2.5rem, 7vw, 5rem))
+    clamp(4rem, 8vw, 7rem);
+  color: var(--ink);
+  background:
+    radial-gradient(60% 45% at 50% 60%, rgb(204 152 40 / 7%), transparent 70%),
+    radial-gradient(50% 40% at 85% 10%, rgb(255 255 255 / 4%), transparent 70%),
+    #08080a;
+  color-scheme: dark;
+}
+
+/* The signal lines run behind the opening screen only, clear of the form. */
+.page .waves {
+  bottom: auto;
+  height: min(100svh, 50rem);
+  mask: linear-gradient(#000 70%, transparent);
+}
+
+.layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.hero {
+  display: grid;
+  justify-items: start;
+  gap: clamp(1.1rem, 2.4vw, 1.6rem);
+  max-width: 52rem;
+}
+
+.lede {
+  max-width: 50ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(1.02rem, 1.3vw, 1.18rem);
+  line-height: 1.75;
+  /* Keeps the intro crisp where the signal lines pass behind it. */
+  text-shadow:
+    0 1px 12px #08080a,
+    0 0 4px #08080a;
+}
+
+.reach {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.email {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding: 0.3rem 1.1rem;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 5%);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  backdrop-filter: blur(12px);
+  transition:
+    border-color 240ms ease,
+    color 240ms ease;
+}
+
+.email:is(:hover, :focus-visible) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.location {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.social {
+  display: grid;
+  width: 2.9rem;
+  height: 2.9rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 4%);
+  color: var(--ink);
+  backdrop-filter: blur(10px);
+  transition:
+    background-color 260ms ease,
+    border-color 260ms ease,
+    color 260ms ease,
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.social svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.social:is(:hover, :focus-visible) {
+  border-color: var(--brand);
+  background: linear-gradient(140deg, var(--bright-gold), var(--brand));
+  color: #1e1608;
+  transform: translateY(-3px);
+}
+
+/* Cards */
+
+.cards {
+  display: grid;
+  align-items: start;
+  gap: 1.2rem;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 1rem;
+  min-width: 0;
+  padding: clamp(1.5rem, 3.5vw, 2.6rem);
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 1.75rem;
+  background: linear-gradient(
+    160deg,
+    rgb(255 255 255 / 7%),
+    rgb(255 255 255 / 2%)
+  );
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 10%),
+    0 2rem 4rem rgb(0 0 0 / 35%);
+  backdrop-filter: blur(22px) saturate(140%);
+  scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+
+.card h2 {
+  margin: 0;
+  font-family: "Big Shoulders", "Manrope Variable", sans-serif;
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.card > p {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.enquiry :global(form) {
+  width: 100%;
+}
+
+/* The 20-minute dial */
+
+.dial {
+  position: relative;
+  display: grid;
+  width: 6.2rem;
+  height: 6.2rem;
+  place-content: center;
+  justify-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #0d0d10 58%, transparent 59%),
+    conic-gradient(var(--brand) 0 33%, rgb(255 255 255 / 10%) 33% 100%);
+  box-shadow: 0 0 2.4rem rgb(204 152 40 / 20%);
+}
+
+.dial strong {
+  color: var(--ink);
+  font-family: "Big Shoulders", "Manrope Variable", sans-serif;
+  font-size: 2.2rem;
+  line-height: 0.9;
+}
+
+.dial small {
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* A thin hand sweeps round the face once every 20 seconds. */
+.sweep {
+  position: absolute;
+  top: 6%;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 44%;
+  border-radius: 2px;
+  background: linear-gradient(var(--bright-gold), transparent);
+  transform-origin: 50% 100%;
+}
+
+:global([data-motion="running"]) .sweep {
+  animation: dial-sweep 20s linear infinite;
+}
+
+@keyframes dial-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (min-width: 54rem) {
+  .cards {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  }
+
+  /* The call card stays in view while the longer form scrolls past. */
+  .booking {
+    position: sticky;
+    top: calc(var(--header-height) + 1.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .email,
+  .social {
+    transition: none;
+  }
+
+  .social:is(:hover, :focus-visible) {
+    transform: none;
+  }
+
+  .sweep {
+    animation: none;
+  }
+}

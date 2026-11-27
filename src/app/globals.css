@@ -122,204 +122,221 @@ a {
   initial-value: 0deg;
 }
 
-.button {
+/*
+ * Pill buttons (PillLink). A highlight orbits the rim and a reflection
+ * crosses the face while motion runs. Primary fills with gold from the left
+ * and turns its arrow; secondary rises with champagne glass from below and
+ * slides its arrow forward.
+ */
+.pill {
+  --pill-rim: #b3832d;
+  --pill-glint: #fff1c8;
+  --pill-icon-size: 2.6rem;
   position: relative;
   isolation: isolate;
   display: inline-flex;
   width: fit-content;
-  min-height: 2.85rem;
+  min-height: 3.3rem;
   align-items: center;
-  justify-content: center;
-  gap: 0.9rem;
-  padding: 0.65rem 1.25rem;
+  gap: 1rem;
+  padding: 0.35rem 0.35rem 0.35rem 1.45rem;
   overflow: hidden;
-  border: 1px solid transparent;
-  border-radius: 0.82rem;
-  font-size: 0.94rem;
+  border-radius: 999px;
+  color: #fff8e7;
+  font-size: 0.95rem;
   font-weight: 800;
+  letter-spacing: 0.02em;
   line-height: 1.2;
   text-decoration: none;
-  transition:
-    color 180ms ease,
-    box-shadow 200ms ease,
-    transform 200ms ease;
-  --rim: #b3832d;
-  --glint: #fff1c8;
-}
-.button-primary {
-  background: linear-gradient(
-    175deg,
-    #e3b552 0%,
-    var(--brand) 40%,
-    #b68120 78%,
-    #a46e14 100%
-  );
-  color: #211704;
-  text-shadow: 0 1px rgb(255 232 169 / 45%);
-  box-shadow:
-    inset 0 1.5px 0 #ffdfa0,
-    inset 0 -3px 2px #845810,
-    0 3px 0 #47300e,
-    0 7px 16px #0005;
-}
-.button-cinematic {
-  min-height: 3.2rem;
-  padding-inline: clamp(1.2rem, 2.2vw, 1.95rem);
   backdrop-filter: blur(10px);
-  color: #fff8e7;
+  box-shadow:
+    inset 1px 1px 1px #fff3,
+    inset -2px -3px 5px #0005,
+    3px 5px 10px #0006;
+  transition:
+    color 320ms ease,
+    box-shadow 320ms ease,
+    transform 220ms ease;
+}
+.pill-primary {
+  background: linear-gradient(
+    145deg,
+    rgb(121 90 34 / 56%),
+    rgb(35 29 19 / 74%)
+  );
   box-shadow:
     inset 1px 1px 1px #fff3,
     inset -2px -3px 5px #0005,
     3px 5px 10px #0006,
-    -2px -2px 8px #fffae218;
+    0 0 2.2rem rgb(204 152 40 / 16%);
 }
-.button-gold {
-  background: linear-gradient(
-    145deg,
-    rgb(121 90 34 / 58%),
-    rgb(35 29 19 / 70%)
-  );
+.pill-secondary {
+  --pill-rim: #9f9c92;
+  --pill-glint: #fffdf7;
+  background: linear-gradient(145deg, rgb(92 89 85 / 46%), rgb(22 22 25 / 68%));
 }
-.button-glass {
-  --rim: #9f9c92;
-  --glint: #fffdf7;
-  background: linear-gradient(145deg, rgb(92 89 85 / 49%), rgb(22 22 25 / 66%));
-}
-/* A single highlight runs around the edge while a separate reflection crosses the face. */
-.button::before,
-.button::after {
+.pill::before,
+.pill::after {
   position: absolute;
   border-radius: inherit;
-  pointer-events: none;
   content: "";
+  pointer-events: none;
 }
-.button::before {
+.pill::before {
+  z-index: 2;
   inset: 0;
   padding: 1.5px;
   background: conic-gradient(
     from var(--rim-angle),
-    var(--rim) 0 54%,
-    var(--glint) 64%,
-    var(--rim) 76% 100%
+    var(--pill-rim) 0 54%,
+    var(--pill-glint) 64%,
+    var(--pill-rim) 76% 100%
   );
   mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   mask-composite: exclude;
 }
-.button::after {
-  inset: -80% auto -80% -65%;
-  width: 47%;
+.pill::after {
+  z-index: 1;
+  inset: -80% auto -80% -40%;
+  width: 30%;
   background: linear-gradient(
     100deg,
     transparent 9%,
-    rgb(255 248 223 / 30%) 49%,
+    rgb(255 248 223 / 26%) 49%,
     transparent 90%
   );
   transform: skewX(-22deg);
 }
-:root[data-motion="running"] .button::before {
-  animation: rim-orbit 3.4s linear infinite;
+:root[data-motion="running"] .pill::before {
+  animation: pill-rim 3.4s linear infinite;
 }
-:root[data-motion="running"] .button::after {
-  animation: button-reflection 2.65s ease-in-out infinite;
+:root[data-motion="running"] .pill::after {
+  animation: pill-glint 2.9s ease-in-out infinite;
 }
-:root[data-motion="running"] .button-glass::after {
-  animation-delay: -0.85s;
+:root[data-motion="running"] .pill-secondary::after {
+  animation-delay: -0.9s;
 }
-@keyframes rim-orbit {
+@keyframes pill-rim {
   to {
     --rim-angle: 360deg;
   }
 }
-@keyframes button-reflection {
+@keyframes pill-glint {
   0%,
   12% {
     transform: translateX(0) skewX(-22deg);
   }
-  47%,
+  50%,
   100% {
-    transform: translateX(425%) skewX(-22deg);
+    transform: translateX(620%) skewX(-22deg);
   }
 }
-.button span[aria-hidden="true"] {
-  transition: transform 200ms ease;
+
+.pill-fill {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  transition: transform 440ms cubic-bezier(0.7, 0, 0.2, 1);
 }
-.button:focus-visible {
-  outline-offset: 4px;
+.pill-primary .pill-fill {
+  background: linear-gradient(110deg, var(--brand), var(--bright-gold));
+  transform: scaleX(0);
+  transform-origin: 0 50%;
 }
-@media (hover: hover) {
-  .button-primary:hover {
-    background: linear-gradient(147deg, #454647, #252526);
-    color: #fff5df;
-    text-shadow: none;
-    box-shadow:
-      inset 2px 2px 4px #75716a70,
-      inset -3px -3px 7px #0a0909,
-      -2px -2px 8px #fff1,
-      3px 4px 9px #0008;
-  }
-  :root[data-theme="light"] .button-primary:hover {
-    background: linear-gradient(147deg, #fffcf4, #ded9cb);
-    color: #30240c;
-    box-shadow:
-      inset 2px 2px 4px white,
-      inset -3px -3px 6px #ada695,
-      2px 4px 8px #0005;
-  }
-  .button-cinematic:hover {
-    color: #261a06;
-    background: linear-gradient(170deg, #f1d58e, var(--brand) 58%, #a47724);
-    box-shadow:
-      inset 0 2px 0 #ffedbc,
-      inset 0 -3px 2px #8d6424,
-      0 3px 0 #49330e,
-      0 6px 12px #0007;
-    transform: translateY(-2px);
-  }
-  .button-glass:hover {
-    color: #292920;
-    background: linear-gradient(165deg, #fffcf3, #d7d3c9 63%, #b7b0a3);
-    box-shadow:
-      inset 0 2px 0 white,
-      inset 0 -3px 2px #aaa497,
-      0 3px 0 #514e48,
-      0 6px 12px #0007;
-  }
-  .button:hover span[aria-hidden="true"] {
-    transform: translate(0.15rem, -0.08rem);
-  }
+.pill-secondary .pill-fill {
+  background: linear-gradient(170deg, #fffcf3, #d7d3c9 63%, #b7b0a3);
+  transform: scaleY(0);
+  transform-origin: 50% 100%;
 }
-.button:active {
+.pill-label {
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+}
+.pill-icon {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex: none;
+  width: var(--pill-icon-size);
+  height: var(--pill-icon-size);
+  place-items: center;
+  border-radius: 50%;
+  transition:
+    background-color 320ms ease,
+    color 320ms ease,
+    transform 440ms cubic-bezier(0.7, 0, 0.2, 1);
+}
+.pill-icon svg {
+  width: 45%;
+  height: 45%;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 320ms ease;
+}
+.pill-primary .pill-icon {
+  background: linear-gradient(140deg, var(--bright-gold), var(--brand));
+  color: #241b0e;
+}
+.pill-secondary .pill-icon {
+  background: rgb(255 253 247 / 14%);
+  box-shadow: inset 0 0 0 1px rgb(255 253 247 / 34%);
+  color: #fffdf7;
+}
+
+.pill:is(:hover, :focus-visible) {
+  color: #241b0e;
+  transform: translateY(-2px);
+}
+.pill-primary:is(:hover, :focus-visible) {
+  box-shadow:
+    inset 0 2px 0 #ffedbc,
+    0 6px 14px #0006,
+    0 0 2.8rem rgb(231 186 96 / 40%);
+}
+.pill-secondary:is(:hover, :focus-visible) {
+  box-shadow:
+    inset 0 2px 0 #fff,
+    0 6px 14px #0007,
+    0 0 2.4rem rgb(255 252 243 / 22%);
+}
+.pill-primary:is(:hover, :focus-visible) .pill-fill {
+  transform: scaleX(1);
+}
+.pill-secondary:is(:hover, :focus-visible) .pill-fill {
+  transform: scaleY(1);
+}
+.pill-primary:is(:hover, :focus-visible) .pill-icon {
+  background: #241b0e;
+  color: var(--bright-gold);
+  transform: rotate(45deg);
+}
+.pill-secondary:is(:hover, :focus-visible) .pill-icon {
+  background: #24221e;
+  box-shadow: none;
+  color: #fffcf3;
+}
+.pill-secondary:is(:hover, :focus-visible) .pill-icon svg {
+  transform: translateX(0.18rem);
+}
+.pill:active {
   transform: translateY(1px);
 }
-
-.page-links {
-  max-width: 47rem;
-  padding: 0;
-  border-top: 1px solid var(--line);
-  margin: 0;
-  list-style: none;
+.pill:focus-visible {
+  outline-offset: 4px;
 }
-
-.page-links a {
-  display: flex;
-  min-height: 3.5rem;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  border-bottom: 1px solid var(--line);
-  color: var(--ink);
-  font-weight: 650;
-  text-decoration: none;
+:root[data-theme="light"] .pill {
+  box-shadow:
+    inset 1px 1px 1px #fff5,
+    inset -2px -3px 5px #0003,
+    3px 5px 10px #5a3f1440;
 }
-
-.page-links a:hover {
-  color: var(--accent);
-}
-
-.interior .page-links {
-  margin-bottom: 1.5rem;
+:root[data-theme="light"] .pill-primary {
+  background-color: #30291d;
 }
 
 .interior {
@@ -343,72 +360,6 @@ a {
   font-size: clamp(1rem, 2vw, 1.125rem);
 }
 
-.booking-section {
-  max-width: 38rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--line);
-  margin-top: 2.5rem;
-}
-
-.booking-section h2 {
-  margin: 0;
-  font-size: 1.35rem;
-}
-
-.site-footer {
-  padding-block: 1.5rem;
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.footer-content {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem 1.5rem;
-}
-
-.footer-content a {
-  overflow-wrap: anywhere;
-  text-underline-offset: 0.25rem;
-}
-
-.footer-content a:first-child {
-  text-decoration: none;
-}
-
-.footer-content strong,
-.footer-content span {
-  display: block;
-}
-
-.footer-content strong {
-  color: var(--ink);
-}
-
-.footer-motion {
-  display: inline-flex;
-  min-height: 2.75rem;
-  align-items: center;
-  gap: 0.4rem;
-  border: 0;
-  padding-inline: 0.3rem;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-}
-
-.footer-motion svg {
-  width: 0.95rem;
-  height: 0.95rem;
-}
-
-.footer-motion:hover {
-  color: var(--ink);
-}
-
 @media (min-width: 48rem) {
   :root {
     --mark-size: 6.25rem;
@@ -417,11 +368,18 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .button,
-  .button span[aria-hidden="true"],
+  .pill,
+  .pill *,
+  .pill::before,
+  .pill::after,
   header *,
   header *::after {
     animation: none;
     transition: none;
+  }
+  .pill:is(:hover, :focus-visible),
+  .pill:is(:hover, :focus-visible) .pill-icon,
+  .pill:is(:hover, :focus-visible) .pill-icon svg {
+    transform: none;
   }
 }

@@ -1,0 +1,71 @@
+/* Survey section on the home page. */
+.survey {
+  background: var(--page);
+}
+
+.surveyDetails {
+  padding-block: clamp(0.65rem, 2vw, 1.5rem);
+}
+
+.surveyDetails summary {
+  display: flex;
+  min-height: 4rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.48rem;
+  color: var(--ink);
+  list-style: none;
+  cursor: pointer;
+}
+
+.surveyDetails summary:hover {
+  color: var(--accent);
+}
+
+.surveyDetails summary::-webkit-details-marker {
+  display: none;
+}
+
+.surveyDetails h2 {
+  margin: 0;
+  font-size: clamp(1.07rem, 1.85vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.surveyDetails summary span {
+  position: relative;
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--accent);
+}
+
+.surveyDetails summary span::before,
+.surveyDetails summary span::after {
+  position: absolute;
+  top: 50%;
+  left: 12%;
+  width: 76%;
+  height: 1px;
+  background: currentColor;
+  content: "";
+}
+
+.surveyDetails summary span::after {
+  transform: rotate(90deg);
+}
+
+.surveyDetails[open] summary span::after {
+  display: none;
+}
+
+.surveyContent {
+  width: min(100%, 42rem);
+  padding-block: 0 1.5rem;
+}
+
+.surveyContent p {
+  color: var(--muted);
+}

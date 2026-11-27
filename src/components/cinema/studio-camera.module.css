@@ -1,0 +1,50 @@
+.stage {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  aspect-ratio: 1.15;
+  place-items: center;
+}
+
+/* Studio logo shown until the camera renders, and when WebGL is unavailable. */
+.fallback {
+  width: min(62%, 22rem);
+  filter: drop-shadow(0 1.5rem 3rem rgb(204 152 40 / 25%));
+  transition: opacity 400ms ease;
+}
+
+.fallback img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.stage[data-camera-ready] .canvas {
+  opacity: 1;
+}
+
+.stage[data-camera-ready] .fallback {
+  opacity: 0;
+}
+
+@media (max-width: 50.99rem) {
+  .stage {
+    aspect-ratio: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fallback,
+  .canvas {
+    transition: none;
+  }
+}

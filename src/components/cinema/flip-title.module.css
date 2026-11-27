@@ -1,0 +1,76 @@
+/* Full width of its column: a size container cannot shrink to its content. */
+.title {
+  width: 100%;
+  margin: 0;
+  line-height: 1;
+  container-type: inline-size;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.76rem;
+  margin-bottom: 0.9rem;
+  color: var(--accent);
+  font-size: clamp(0.82rem, 1.05vw, 0.98rem);
+  font-weight: 750;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.label::before {
+  width: clamp(1.35rem, 3.6vw, 3.1rem);
+  height: 1px;
+  background: currentColor;
+  content: "";
+}
+
+.word {
+  display: block;
+  font-family: "Big Shoulders", "Manrope Variable", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 0.88;
+  text-transform: uppercase;
+  perspective: 40rem;
+}
+
+/* Sized against the title's own column so long words never run into media. */
+.title[data-size="display"] .word {
+  font-size: min(9rem, 17cqi);
+}
+
+.title[data-size="section"] .word {
+  font-size: min(6.4rem, 14cqi);
+}
+
+.title[data-align="center"] {
+  text-align: center;
+}
+
+.title[data-align="center"] .label {
+  justify-content: center;
+}
+
+/* A rule on both sides of a centred label. */
+.title[data-align="center"] .label::after {
+  width: clamp(1.35rem, 3.6vw, 3.1rem);
+  height: 1px;
+  background: currentColor;
+  content: "";
+}
+
+.title[data-line] .word {
+  display: inline-block;
+  margin-inline: 0.12em;
+}
+
+.word[data-accent="true"] {
+  color: var(--accent);
+}
+
+.letter {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+}

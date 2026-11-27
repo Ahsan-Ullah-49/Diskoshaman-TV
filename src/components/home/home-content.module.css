@@ -1,0 +1,56 @@
+.work,
+.services {
+  overflow: clip;
+  padding-block: clamp(4.1rem, 8.6vw, 8.5rem);
+}
+
+.work {
+  background:
+    radial-gradient(ellipse at 50% 45%, #382018 0%, transparent 62%),
+    linear-gradient(180deg, #150e10, #120e10 80%);
+}
+
+.workHeading {
+  position: relative;
+  display: grid;
+  align-items: end;
+  justify-items: start;
+  gap: 0.6rem 2rem;
+  margin-bottom: clamp(1.6rem, 5vw, 4.3rem);
+}
+
+/* Near-black stage so the gold particle field and camera carry the colour. */
+.services {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(60% 70% at 74% 40%, rgb(255 255 255 / 4%), transparent 70%),
+    #08080a;
+}
+
+.services::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #08080a 0%,
+    transparent 18%,
+    transparent 82%,
+    #08080a 100%
+  );
+  content: "";
+  pointer-events: none;
+}
+
+@media (min-width: 51rem) {
+  .workHeading {
+    grid-template-columns: 1fr auto;
+  }
+}
+
+@media (max-width: 50.99rem) {
+  .services {
+    padding-bottom: 2.6rem;
+  }
+}

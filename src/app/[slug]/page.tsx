@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AboutPage } from "@/components/about-page";
+import styles from "@/components/page-sections.module.css";
+import { featuredProject } from "@/content/projects";
+import { serviceDetails } from "@/content/service-details";
 import { servicePages } from "@/content/services";
-import { interiorPages, pages, site } from "@/content/site";
+import { interiorPages, pages } from "@/content/site";
+import { producer } from "@/content/studio";
+import { ContactPage } from "@/features/contact/contact-page";
+import { ServicePage, ServicesPage } from "@/features/services/service-pages";
+import { WorkPage } from "@/features/work/work-page";
 import { pageMetadata } from "@/lib/metadata";
 
 type RouteProps = { params: Promise<{ slug: string }> };
@@ -22,46 +29,37 @@ function findPage(slug: string) {
 export async function generateMetadata({
   params,
 }: RouteProps): Promise<Metadata> {
-  return pageMetadata(findPage((await params).slug));
+  const page = findPage((await params).slug);
+  const service = servicePages.find(({ slug }) => slug === page.slug);
+  const socialImage =
+    page === pages.work
+      ? { url: featuredProject.poster, alt: featuredProject.title }
+      : page === pages.about
+        ? { url: producer.portrait, alt: producer.name }
+        : service
+          ? {
+              url: serviceDetails[service.slug].media.frames[0].src,
+              alt: serviceDetails[service.slug].media.frames[0].alt,
+            }
+          : undefined;
+  return pageMetadata(page, socialImage);
+}
+
+function renderPage(slug: string) {
+  if (slug === pages.work.slug) return <WorkPage />;
+  if (slug === pages.services.slug) return <ServicesPage />;
+  if (slug === pages.about.slug) return <AboutPage />;
+  if (slug === pages.contact.slug) return <ContactPage />;
+  const service = servicePages.find((page) => page.slug === slug);
+  if (!service) notFound();
+  return <ServicePage service={service} />;
 }
 
 export default async function InteriorPage({ params }: RouteProps) {
-  const page = findPage((await params).slug);
-
+  const { slug } = await params;
   return (
-    <div className="container interior">
-      <h1>{page.heading}</h1>
-      <p>{page.intro}</p>
-
-      {page === pages.services && (
-        <ul className="page-links">
-          {servicePages.map(({ path, heading }) => (
-            <li key={path}>
-              <Link href={path}>
-                {heading} <span aria-hidden="true">→</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {page === pages.contact ? (
-        <section
-          className="booking-section"
-          id="booking"
-          aria-labelledby="booking-title"
-        >
-          <h2 id="booking-title">Book a 20-minute discovery call</h2>
-          <p>Email Hammad to arrange a time or send a project enquiry.</p>
-          <a className="button button-primary" href={`mailto:${site.email}`}>
-            Email Hammad
-          </a>
-        </section>
-      ) : (
-        <Link className="button button-primary" href={pages.contact.path}>
-          Talk to us <span aria-hidden="true">↗</span>
-        </Link>
-      )}
+    <div className={styles.route} key={slug}>
+      {renderPage(slug)}
     </div>
   );
 }

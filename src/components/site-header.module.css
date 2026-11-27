@@ -124,55 +124,13 @@
 .desktopTheme {
   display: none;
 }
+/* Compact pill for the bar; the shared .pill styles in globals.css add the rim, glint and hover. */
 .header .bookingButton {
+  --pill-icon-size: 2.05rem;
   min-height: 2.75rem;
-  gap: 0.5rem;
-  padding: 0.58rem clamp(0.65rem, 1.55vw, 1.5rem);
+  gap: 0.6rem;
+  padding: 0.3rem 0.32rem 0.3rem clamp(0.85rem, 1.4vw, 1.15rem);
   font-size: clamp(0.79rem, 1.35vw, 0.9rem);
-  white-space: nowrap;
-}
-/* Keep the film-glass treatment legible on the light header and drawer. */
-:global([data-theme="light"])
-  .header:is([data-scroll="raised"], [data-over-film="false"])
-  .bookingButton,
-:global([data-theme="light"]) .dialog .bookingButton {
-  background-color: #30291d;
-}
-.bookingButton::before {
-  z-index: 1;
-}
-.bookingLabel,
-.bookingArrow {
-  position: relative;
-  z-index: 1;
-}
-.bookingWash {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 145%;
-  height: 360%;
-  background: linear-gradient(90deg, #f5cb76, #ffe8af 54%, #f9d38d);
-  pointer-events: none;
-  transform: translate(-50%, -50%) rotate(45deg) scaleX(var(--wipe, 0));
-  transition: transform 500ms ease;
-}
-@media (hover: hover) {
-  .header .bookingButton:hover {
-    --wipe: 1;
-    background: var(--bright-gold);
-    color: #261a08;
-    box-shadow: 0 5px 17px rgb(204 152 40 / 34%);
-    transform: translateY(-2px);
-  }
-}
-.header .bookingButton:is(:focus-visible, :active) {
-  --wipe: 1;
-  background: var(--bright-gold);
-  color: #261a08;
-}
-.header .bookingButton:active {
-  transform: translateY(1px);
 }
 @media (max-width: 36rem) {
   .header {
@@ -195,12 +153,16 @@
   }
   .actions .bookingButton {
     max-width: 100%;
-    gap: 0.32rem;
-    padding-inline: min(0.58rem, 7cqi);
+    gap: 0.4rem;
+    padding-inline-start: min(0.75rem, 8cqi);
   }
 }
-@container booking-space (max-width: 6.25rem) {
-  .actions .bookingArrow {
+/* In a very narrow bar the arrow drops out and the label keeps even padding. */
+@container booking-space (max-width: 8rem) {
+  .actions .bookingButton {
+    padding-inline: min(0.6rem, 7cqi);
+  }
+  .actions .bookingButton :global(.pill-icon) {
     display: none;
   }
 }
@@ -389,7 +351,8 @@
   border: 0;
   background: transparent;
   color: var(--ink);
-  --drawer-width: 50%;
+  /* Half the screen, but never so narrow that service names and booking cramp on small phones. */
+  --drawer-width: min(max(50%, 17rem), calc(100% - 3.5rem));
   --drawer-padding: clamp(0.75rem, 3.6vw, 1.85rem);
   --drawer-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --nav-accent: var(--accent);
@@ -539,6 +502,7 @@
 }
 .drawerFooter .bookingButton {
   width: 100%;
+  justify-content: space-between;
 }
 
 @media (min-width: 53rem) {
@@ -586,21 +550,64 @@
   .desktopNav .serviceGroup[data-expanded="true"] .navLink::after {
     transform: scaleX(1);
   }
+  /* Services opens as a smoked-glass panel that drops in from the bar. */
   .desktopNav .submenu {
     position: absolute;
     z-index: 2;
-    top: 100%;
+    top: calc(100% + 0.35rem);
     left: -0.85rem;
-    min-width: 13.5rem;
-    padding: 0.35rem;
-    border: 1px solid var(--line);
-    border-radius: 0.55rem;
-    background: var(--panel);
+    min-width: 14.5rem;
+    padding: 0.4rem;
+    border: 1px solid color-mix(in srgb, var(--brand) 38%, var(--line));
+    border-radius: 0.85rem;
+    background: color-mix(in srgb, var(--panel) 86%, transparent);
     color: var(--ink);
-    box-shadow: 0 0.65rem 1.6rem rgb(0 0 0 / 18%);
+    backdrop-filter: blur(16px) saturate(120%);
+    box-shadow:
+      0 1.2rem 2.6rem rgb(0 0 0 / 34%),
+      inset 0 1px rgb(255 243 208 / 10%);
+    transform-origin: 1.5rem 0;
+    transition:
+      opacity 220ms ease,
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      display 260ms allow-discrete;
+  }
+  /* Bridge the gap so the pointer can travel from Services into the panel. */
+  .desktopNav .submenu::before {
+    position: absolute;
+    inset: -0.5rem 0 100%;
+    content: "";
+  }
+  @starting-style {
+    .desktopNav .submenu {
+      opacity: 0;
+      transform: translateY(-0.4rem) scale(0.97);
+    }
   }
   .desktopNav .submenu a {
-    border-radius: 0.28rem;
+    position: relative;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      padding 220ms ease;
+  }
+  .desktopNav .submenu a::before {
+    width: 0;
+    height: 1.5px;
+    margin-right: 0;
+    background: var(--brand);
+    content: "";
+    transition:
+      width 220ms ease,
+      margin 220ms ease;
+  }
+  .desktopNav
+    .submenu
+    a:is(:hover, :focus-visible, [aria-current="page"])::before {
+    width: 0.8rem;
+    margin-right: 0.55rem;
   }
   .actions {
     justify-self: end;
@@ -611,7 +618,6 @@
   .header
   :is(
     .bookingButton,
-    .bookingWash,
     .drawerBacking,
     .dialogPanel,
     .menuButton,
@@ -626,7 +632,6 @@
     :is(
       .surface,
       .bookingButton,
-      .bookingWash,
       .drawerBacking,
       .dialogPanel,
       .menuButton,
@@ -636,7 +641,10 @@
       .navList > li
     ),
   .dialog::backdrop,
-  .desktopNav .navLink::after {
+  .desktopNav .navLink::after,
+  .desktopNav .submenu,
+  .desktopNav .submenu a,
+  .desktopNav .submenu a::before {
     transition: none;
   }
 }

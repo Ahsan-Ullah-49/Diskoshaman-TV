@@ -47,11 +47,19 @@ export function SiteScroll() {
 
   useEffect(() => {
     // Next restores the actual document position on navigation and browser history.
-    const frame = requestAnimationFrame(() => {
+    const remeasure = () => {
       active.current?.resize();
       ScrollTrigger.refresh();
-    });
-    return () => cancelAnimationFrame(frame);
+    };
+    const frame = requestAnimationFrame(remeasure);
+    // Measure again once the new page's fonts and images have settled, so
+    // scroll scenes never keep positions from the page that was just left.
+    const settle = window.setTimeout(remeasure, 700);
+    void document.fonts?.ready.then(() => requestAnimationFrame(remeasure));
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
+    };
   }, [pathname]);
 
   return null;

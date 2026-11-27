@@ -1,8 +1,8 @@
+import { HomeContent } from "@/components/home/home-content";
 import { StudioHero } from "@/components/home/studio-hero";
-import Link from "next/link";
+import { StudioStory } from "@/components/home/studio-story";
 import { pages, site } from "@/content/site";
 import { absoluteUrl, pageMetadata } from "@/lib/metadata";
-import styles from "./page.module.css";
 
 export const metadata = pageMetadata(pages.home);
 
@@ -39,24 +39,8 @@ export default function HomePage() {
         }}
       />
       <StudioHero />
-      <section className={styles.browse} aria-labelledby="browse-title">
-        <div className="container">
-          <h2 id="browse-title">Explore the studio</h2>
-          <ul className="page-links">
-            <li>
-              <Link href={pages.work.path}>
-                Production portfolio <span aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link href={pages.services.path}>
-                Videography, photography and editing{" "}
-                <span aria-hidden="true">→</span>
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <StudioStory />
+      <HomeContent />
     </>
   );
 }

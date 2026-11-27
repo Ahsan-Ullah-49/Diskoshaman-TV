@@ -1,0 +1,61 @@
+.projector {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* A soft wedge of warm-white light from a lens just above the frame. */
+.beam {
+  position: absolute;
+  top: -6%;
+  left: 50%;
+  width: 140%;
+  height: 112%;
+  margin-left: -70%;
+  background: radial-gradient(
+    60% 100% at 50% 0%,
+    rgb(255 240 214 / 22%),
+    rgb(231 186 96 / 8%) 45%,
+    transparent 75%
+  );
+  clip-path: polygon(46% 0, 54% 0, 86% 100%, 14% 100%);
+  filter: blur(14px);
+  transform-origin: 50% 0;
+}
+
+:global([data-motion="running"]) .beam {
+  animation: beam-flicker 7s ease-in-out infinite;
+}
+
+@keyframes beam-flicker {
+  0%,
+  100% {
+    opacity: 0.92;
+    transform: rotate(-1.5deg);
+  }
+  40% {
+    opacity: 1;
+  }
+  47% {
+    opacity: 0.84;
+  }
+  52% {
+    opacity: 1;
+    transform: rotate(1.5deg);
+  }
+}
+
+.dust {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beam {
+    animation: none;
+  }
+}
