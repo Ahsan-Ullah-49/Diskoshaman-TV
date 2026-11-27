@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { gsap, useGSAP } from "@/lib/motion";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/motion";
 import { useStudioMotion } from "../studio-motion";
 import styles from "./story.module.css";
 
@@ -62,9 +62,8 @@ export function StoryMotion({
       );
       if (!set || !rig || !film || !beam || !lead) return;
 
-      // Title letters flip up out of the floor as the section arrives. The
-      // flip plays on its own clock rather than following scroll, so a stale
-      // trigger position after client navigation can never leave letters half way.
+      // Title letters flip up out of the floor with scroll, and fold away
+      // again when the visitor scrolls back up.
       gsap.fromTo(
         letters,
         { yPercent: 95, rotationX: -88, autoAlpha: 0 },
@@ -72,13 +71,14 @@ export function StoryMotion({
           yPercent: 0,
           rotationX: 0,
           autoAlpha: 1,
-          duration: 0.9,
-          ease: "back.out(1.4)",
+          ease: "power2.out",
           stagger: 0.045,
           scrollTrigger: {
             trigger: root,
-            start: "top 80%",
-            toggleActions: "play none none none",
+            start: "top 88%",
+            end: "top 28%",
+            scrub: 0.6,
+            invalidateOnRefresh: true,
           },
         },
       );
@@ -100,19 +100,20 @@ export function StoryMotion({
         );
       }
 
-      // The story brightens in one quick wave of words, also on its own clock.
+      // The story brightens word by word as it scrolls up the screen.
       gsap.fromTo(
         words,
         { opacity: 0.14 },
         {
           opacity: 1,
-          duration: 0.5,
-          ease: "power1.out",
-          stagger: { amount: 1.6 },
+          ease: "none",
+          stagger: 0.1,
           scrollTrigger: {
             trigger: lead,
-            start: "top 82%",
-            toggleActions: "play none none none",
+            start: "top 85%",
+            end: "bottom 55%",
+            scrub: true,
+            invalidateOnRefresh: true,
           },
         },
       );
@@ -134,6 +135,13 @@ export function StoryMotion({
           },
         );
       });
+
+      // After client navigation the page above may still be settling. Measure
+      // again once this section has laid out, so the scrubbed title and words
+      // never follow positions from the page that was just left.
+      const settle = requestAnimationFrame(() =>
+        requestAnimationFrame(() => ScrollTrigger.refresh()),
+      );
 
       const screens = gsap.matchMedia();
       screens.add(
@@ -202,7 +210,10 @@ export function StoryMotion({
         },
       );
 
-      return () => screens.revert();
+      return () => {
+        cancelAnimationFrame(settle);
+        screens.revert();
+      };
     },
     { scope: section, dependencies: [enabled], revertOnUpdate: true },
   );

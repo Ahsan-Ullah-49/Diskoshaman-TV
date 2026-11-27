@@ -115,6 +115,11 @@
   text-transform: uppercase;
   white-space: nowrap;
   perspective: 40rem;
+  /* Letters rise from below this line; anything still below it stays hidden,
+     so the name never slides over the story text while it reveals. */
+  overflow: clip;
+  overflow-clip-margin: 0.12em;
+  padding-block: 0.04em;
 }
 .letter {
   display: inline-block;

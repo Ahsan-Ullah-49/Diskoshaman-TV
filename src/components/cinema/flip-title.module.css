@@ -33,6 +33,10 @@
   line-height: 0.88;
   text-transform: uppercase;
   perspective: 40rem;
+  /* Each line is a mask: letters rise from below it and never cover the text beneath. */
+  overflow: clip;
+  overflow-clip-margin: 0.12em;
+  padding-block: 0.04em;
 }
 
 /* Sized against the title's own column so long words never run into media. */
