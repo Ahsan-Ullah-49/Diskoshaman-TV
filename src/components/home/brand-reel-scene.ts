@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { sharpenEmblemTextures } from "@/components/brand/emblem-textures";
 import { brandLogoSource, brandLogos } from "@/content/brand-logos";
 import {
   canvasPixelRatio,
@@ -403,6 +404,7 @@ export function mountBrandReel(
       return;
     }
 
+    sharpenEmblemTextures(model, renderer);
     // Seat the globe over the shaft and keep the lettering facing the viewer.
     const bounds = new THREE.Box3().setFromObject(model);
     const scale = 1.58 / (bounds.max.y - bounds.min.y);

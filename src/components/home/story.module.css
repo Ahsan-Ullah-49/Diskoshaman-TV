@@ -138,6 +138,12 @@
   gap: clamp(1.4rem, 3vw, 2rem);
   align-content: start;
 }
+/* While the story is a single column, its button sits centred under the text. */
+@media (max-width: 59.99rem) {
+  .storyText > a {
+    justify-self: center;
+  }
+}
 /*
  * The story reads as calm editorial paragraphs: soft body text with key
  * phrases set in bold ink, aligned with the heading.

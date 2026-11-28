@@ -53,6 +53,20 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+.heading {
+  z-index: 1;
+  grid-area: title;
+  align-self: end;
+}
+
+.subheading {
+  max-width: 32ch;
+  margin: clamp(0.7rem, 1.6vw, 1rem) 0 0;
+  color: color-mix(in srgb, #f5e8d3 72%, transparent);
+  font-size: clamp(0.98rem, 1.3vw, 1.12rem);
+  line-height: 1.5;
+}
+
 .title {
   z-index: 1;
   grid-area: title;
@@ -331,8 +345,11 @@
     column-gap: clamp(0.5rem, 2.3vw, 2.3rem);
   }
 
-  .title {
+  .heading {
     margin-bottom: clamp(1rem, 2.7svh, 2.3rem);
+  }
+
+  .title {
     font-size: clamp(3.55rem, min(6.05vw, 10svh), 6.45rem);
   }
 

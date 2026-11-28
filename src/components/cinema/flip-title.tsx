@@ -16,6 +16,8 @@ type FlipTitleProps = {
   align?: "start" | "center";
   /** Set the words side by side on one line instead of one per line. */
   oneLine?: boolean;
+  /** Also cap a display title by the viewport height, so a hero fits one screen. */
+  fitHeight?: boolean;
 };
 
 /**
@@ -31,6 +33,7 @@ export function FlipTitle({
   size = "section",
   align = "start",
   oneLine = false,
+  fitHeight = false,
 }: FlipTitleProps) {
   const title = useRef<HTMLHeadingElement>(null);
   const { enabled } = useStudioMotion();
@@ -74,6 +77,7 @@ export function FlipTitle({
       data-size={size}
       data-align={align}
       data-line={oneLine || undefined}
+      data-fit={fitHeight || undefined}
     >
       {label && <span className={styles.label}>{label}</span>}
       <span className="visually-hidden">{words.join(" ")}</span>

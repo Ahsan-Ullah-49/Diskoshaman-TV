@@ -3,8 +3,10 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { DiagonalArrow } from "@/components/cinema/diagonal-arrow";
 import cinema from "@/components/cinema/cinema.module.css";
-import { IrisField } from "@/components/cinema/iris-field";
+import { FlipTitle } from "@/components/cinema/flip-title";
 import { ScrollReveal } from "@/components/cinema/scroll-reveal";
+import { ServiceScene } from "@/components/cinema/service-scene";
+import type { SceneKind } from "@/components/cinema/service-scene-drawings";
 import { PillLink } from "@/components/pill-link";
 import { relatedProjects } from "@/content/projects";
 import {
@@ -13,9 +15,8 @@ import {
 } from "@/content/service-details";
 import { serviceNavigation, servicePages } from "@/content/services";
 import { bookingPath, pages } from "@/content/site";
-import { WorkCollection } from "@/features/work/work-collection";
+import { FilmGrid } from "@/features/work/content-library";
 import { ProcessTimeline } from "./process-timeline";
-import { ServiceMedia } from "./service-media";
 import styles from "./services.module.css";
 
 type Service = (typeof servicePages)[number];
@@ -39,13 +40,30 @@ const serviceAccents: Record<ServiceSlug, string> = {
   "business-video-production-perth": "#0f8f78",
   "brand-film-production-perth": "#b47a12",
   "social-media-reels-perth": "#d23f7c",
-  "photography-perth": "#7a6a4f",
+  "photography-perth": "#e3ac0b",
+};
+
+/** Each service hero has its own live scene; the overview shows the aperture. */
+const serviceScenes: Record<ServiceSlug, SceneKind> = {
+  "corporate-video-production-perth": "network",
+  "business-video-production-perth": "growth",
+  "brand-film-production-perth": "ribbon",
+  "social-media-reels-perth": "reels",
+  "photography-perth": "lens",
+};
+
+/** Photography takes its yellow through the whole page, not only the accents. */
+const pageTints: Partial<Record<ServiceSlug, string>> = {
+  "photography-perth": "11%",
 };
 
 const overviewAccent = "#b47a12";
 
-function accentStyle(accent: string) {
-  return { "--service-accent": accent } as CSSProperties;
+function accentStyle(accent: string, pageTint?: string) {
+  return {
+    "--service-accent": accent,
+    ...(pageTint && { "--page-tint": pageTint }),
+  } as CSSProperties;
 }
 
 function getServicePreview({
@@ -134,13 +152,19 @@ export function ServicesPage() {
   return (
     <div className={styles.page} style={accentStyle(overviewAccent)}>
       <section className={styles.hero} aria-labelledby="services-title">
-        <IrisField />
+        <ServiceScene kind="aperture" />
+        {/* Title, lede and buttons follow the Work page's hero. */}
         <div className={`container ${styles.heroInner}`}>
-          <p className={styles.eyebrow}>Perth video and photography studio</p>
-          <h1 id="services-title" className={styles.heroTitle}>
-            Production services
-          </h1>
-          <p className={styles.lede}>{pages.services.intro}</p>
+          <FlipTitle
+            as="h1"
+            id="services-title"
+            label="Video & photography"
+            words={["Production", "Services"]}
+            size="display"
+            align="center"
+            oneLine
+          />
+          <p className={styles.heroLede}>{pages.services.intro}</p>
           <div className={styles.actions}>
             <PillLink href={bookingPath}>Book a call</PillLink>
             <PillLink href="#services" variant="secondary" arrow="right">
@@ -157,9 +181,13 @@ export function ServicesPage() {
       >
         <div className="container">
           <div className={styles.sectionHead}>
-            <h2 id="lineup-title" className={styles.sectionTitle}>
-              Our services
-            </h2>
+            <FlipTitle
+              id="lineup-title"
+              label="What we make"
+              words={["Our", "Services"]}
+              align="center"
+              oneLine
+            />
           </div>
           <ul className={styles.cardGrid}>
             {publishedServices.map((service) => (
@@ -194,10 +222,10 @@ export function ServicePage({ service }: { service: Service }) {
   return (
     <div
       className={styles.page}
-      style={accentStyle(serviceAccents[service.slug])}
+      style={accentStyle(serviceAccents[service.slug], pageTints[service.slug])}
     >
       <section className={styles.hero} aria-labelledby="service-title">
-        <IrisField />
+        <ServiceScene kind={serviceScenes[service.slug]} />
         <div className={`container ${styles.heroInner}`}>
           <Link href={pages.services.path} className={styles.back}>
             <span aria-hidden="true">‹</span> All services
@@ -220,13 +248,6 @@ export function ServicePage({ service }: { service: Service }) {
         </div>
       </section>
 
-      <section className={styles.showcase} aria-label={`${label} example`}>
-        <div className={`container ${styles.showcaseInner}`}>
-          <ServiceMedia title={service.heading} media={detail.media} />
-          <p className={styles.statementText}>{detail.body}</p>
-        </div>
-      </section>
-
       <section
         id="deliverables"
         className={styles.lineup}
@@ -237,6 +258,7 @@ export function ServicePage({ service }: { service: Service }) {
             <h2 id="service-deliverables" className={styles.sectionTitle}>
               What you get
             </h2>
+            <p className={styles.lede}>{detail.body}</p>
           </div>
           <ScrollReveal className={styles.deliverables}>
             {detail.deliverables.map(({ title, description }) => (
@@ -267,7 +289,10 @@ export function ServicePage({ service }: { service: Service }) {
                 Browse all films <DiagonalArrow />
               </Link>
             </div>
-            <WorkCollection projects={relatedProjects(detail.related)} />
+            {/* Films play in their frames; captions name the format, not the title. */}
+            <div className={styles.relatedFilms}>
+              <FilmGrid films={relatedProjects(detail.related)} captions />
+            </div>
           </div>
         </section>
       </div>

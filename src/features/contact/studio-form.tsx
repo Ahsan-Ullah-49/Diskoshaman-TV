@@ -12,6 +12,7 @@ import {
   type FormKind,
   type FormMode,
 } from "./form-fields";
+import { submitEnquiry } from "./web3forms";
 import styles from "./studio-form.module.css";
 
 function InputField({
@@ -25,7 +26,7 @@ function InputField({
 }) {
   const shared = {
     name: field.name,
-    required: true,
+    required: !field.optional,
     "aria-invalid": error ? true : undefined,
     "aria-describedby": error ? `${id}-error` : undefined,
   };
@@ -33,9 +34,9 @@ function InputField({
   return (
     <div
       className={styles.field}
-      data-wide={field.fullWidth || field.options !== undefined}
+      data-wide={field.fullWidth || field.type === "radio"}
     >
-      {field.options ? (
+      {field.type === "radio" && field.options ? (
         <fieldset>
           <legend>{field.label}</legend>
           <div className={styles.options}>
@@ -50,7 +51,16 @@ function InputField({
       ) : (
         <>
           <label htmlFor={id}>{field.label}</label>
-          {field.type === "textarea" ? (
+          {field.type === "select" ? (
+            <select {...shared} id={id} defaultValue="">
+              <option value="">{field.placeholder}</option>
+              {field.options?.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          ) : field.type === "textarea" ? (
             <textarea
               {...shared}
               id={id}
@@ -122,6 +132,30 @@ export function StudioForm({ kind, mode }: { kind: FormKind; mode: FormMode }) {
     }
 
     setErrors({});
+    // The enquiry goes straight to Web3Forms from the browser; previews stop here.
+    if (kind === "enquiry") {
+      if (mode === "preview") {
+        setState("preview");
+        form.reset();
+        return;
+      }
+      pending.current = true;
+      setState("sending");
+      try {
+        const accepted = await submitEnquiry(
+          values,
+          Boolean(data.get("websiteConfirm")),
+        );
+        setState(accepted ? "sent" : "error");
+        if (accepted) form.reset();
+      } catch {
+        setState("error");
+      } finally {
+        pending.current = false;
+      }
+      return;
+    }
+
     pending.current = true;
     setState("sending");
     const snapshot = JSON.stringify(values);
@@ -180,10 +214,6 @@ export function StudioForm({ kind, mode }: { kind: FormKind; mode: FormMode }) {
       noValidate
       aria-busy={state === "sending"}
     >
-      {/* The one-field newsletter stays clean; longer forms explain preview delivery. */}
-      {mode === "preview" && kind !== "newsletter" && (
-        <p className={styles.preview}>Preview form · demo submissions only</p>
-      )}
       <fieldset className={styles.fields} disabled={state === "sending"}>
         <legend className="visually-hidden">{copy.submit}</legend>
         {formFields[kind].map((field) => (

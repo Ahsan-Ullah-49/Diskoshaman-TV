@@ -34,7 +34,14 @@
   letter-spacing: -0.025em;
 }
 
-.surveyDetails summary span {
+.surveyLine {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.surveyDetails summary > span {
   position: relative;
   flex: none;
   width: 1.15rem;
@@ -42,8 +49,8 @@
   color: var(--accent);
 }
 
-.surveyDetails summary span::before,
-.surveyDetails summary span::after {
+.surveyDetails summary > span::before,
+.surveyDetails summary > span::after {
   position: absolute;
   top: 50%;
   left: 12%;
@@ -53,11 +60,11 @@
   content: "";
 }
 
-.surveyDetails summary span::after {
+.surveyDetails summary > span::after {
   transform: rotate(90deg);
 }
 
-.surveyDetails[open] summary span::after {
+.surveyDetails[open] summary > span::after {
   display: none;
 }
 

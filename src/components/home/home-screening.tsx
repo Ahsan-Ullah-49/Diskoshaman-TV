@@ -248,7 +248,7 @@ export function HomeScreening({ films }: { films: HomeScreeningProgram }) {
   useGSAP(
     () => {
       if (!enabled || !stage.current || !rig.current) return;
-      // Scroll sets the camera angle. The film carriers rotate independently.
+      // The whole rig tilts on approach so the covers settle upright together.
       gsap.fromTo(
         rig.current,
         { rotationX: 22, rotationY: -42, rotationZ: -6, z: -185, y: 56 },

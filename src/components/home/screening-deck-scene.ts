@@ -26,8 +26,10 @@ export function mountScreeningDeck(
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 40);
-  camera.position.z = 14;
-  const viewHeight = 2 * camera.position.z * Math.tan(Math.PI / 10);
+  const cameraDistance = 14;
+  camera.position.z = cameraDistance;
+  const frustumSlope = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const viewHeight = 2 * cameraDistance * frustumSlope;
   const transport = new THREE.Group();
   scene.add(transport);
 
@@ -164,6 +166,17 @@ export function mountScreeningDeck(
     0.36,
   );
 
+  const transportBounds = new THREE.Box3().setFromObject(transport);
+  const { min, max } = transportBounds;
+  const transportWidth = max.x - min.x;
+  const corners = [min.x, max.x].flatMap((x) =>
+    [min.y, max.y].flatMap((y) =>
+      [min.z, max.z].map((z) => new THREE.Vector3(x, y, z)),
+    ),
+  );
+  const rotatedCorners = corners.map(() => new THREE.Vector3());
+  const verticalLimit = frustumSlope * 0.94;
+  let preferredScale = 1;
   let lastFrame = 0;
   let lean = 0;
   const host = canvas.parentElement ?? canvas;
@@ -196,12 +209,35 @@ export function mountScreeningDeck(
       ),
     );
     renderer.setSize(width, height, false);
-    transport.scale.setScalar((viewHeight * camera.aspect * 0.88) / 10);
-    transport.position.y = -viewHeight * 0.322;
+    preferredScale = (viewHeight * camera.aspect * 0.88) / transportWidth;
   }
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(host);
   resize();
+
+  function fitTransport() {
+    // The near corners grow in perspective as the deck turns towards the viewer.
+    const horizontalLimit = verticalLimit * camera.aspect;
+    let scale = preferredScale;
+    for (const [index, corner] of corners.entries()) {
+      const rotated = rotatedCorners[index]
+        .copy(corner)
+        .applyQuaternion(transport.quaternion);
+      const extent = Math.abs(rotated.x) + rotated.z * horizontalLimit;
+      if (extent > 0) {
+        scale = Math.min(scale, (cameraDistance * horizontalLimit) / extent);
+      }
+    }
+    transport.scale.setScalar(scale);
+
+    // Lift the base just enough to keep its closest corner inside the bottom edge.
+    let deckY = -viewHeight * 0.322;
+    for (const corner of rotatedCorners) {
+      const depth = cameraDistance - corner.z * scale;
+      deckY = Math.max(deckY, -depth * verticalLimit - corner.y * scale);
+    }
+    transport.position.y = deckY;
+  }
 
   const { damp } = THREE.MathUtils;
   function draw(now: number) {
@@ -220,6 +256,7 @@ export function mountScreeningDeck(
       ),
       damp(transport.rotation.z, -distance * 0.05, 6, delta),
     );
+    fitTransport();
     carriage.position.x = damp(
       carriage.position.x,
       (selection - 1.5) * 1.72,

@@ -423,13 +423,14 @@
 @media (max-width: 37rem) {
   .foot {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
     gap: 0.65rem;
   }
+  /* Client decision: phones show the reel without the pause control, so the
+     view counts get the full row. Desktop and tablet keep the control. */
   .playback {
-    grid-area: 1 / 2;
-    justify-self: end;
+    display: none;
   }
   .metrics {
     --metric-space: clamp(0.34rem, 1.5vw, 0.7rem);

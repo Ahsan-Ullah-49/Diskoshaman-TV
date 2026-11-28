@@ -1,9 +1,9 @@
 /*
- * Services: light and airy after Apple's own pages, tied to the studio.
- * Soft white and #f5f5f7 sections with near-black type, deep per-service
- * accents, white cards with a slow line of light round the edge, and the
- * studio's gold pills. The process and the films sit in a dark cinema band
- * so the pages still belong to the rest of the site.
+ * Services: calm and airy after Apple's own pages, tied to the studio. The
+ * page follows the site theme: near-black in the dark theme and soft white
+ * in the light one. Deep per-service accents, cards with a slow line of
+ * light round the edge, and the studio's own pills. The process and the
+ * films sit in a dark cinema band so the pages belong to the rest of the site.
  */
 @property --edge-angle {
   syntax: "<angle>";
@@ -12,43 +12,70 @@
 }
 
 .page {
-  --ink: #1d1d1f;
-  --muted: #6e6e73;
-  --line: rgb(0 0 0 / 8%);
-  --surface: #fff;
-  --surface-soft: #f5f5f7;
   --service-accent: #b47a12;
+  /* Photography mixes its accent into every surface; other pages stay neutral. */
+  --page-tint: 0%;
   --accent-light: color-mix(in srgb, var(--service-accent) 55%, #fff);
-  --accent: var(--service-accent);
+  --ink: #f5f1e8;
+  --muted: #aaa49b;
+  --line: rgb(255 255 255 / 10%);
+  --surface: color-mix(
+    in srgb,
+    var(--service-accent) var(--page-tint),
+    #161618
+  );
+  --surface-soft: color-mix(
+    in srgb,
+    var(--service-accent) calc(var(--page-tint) * 0.7),
+    #0b0b0d
+  );
+  --surface-more: color-mix(
+    in srgb,
+    var(--service-accent) calc(var(--page-tint) * 0.5),
+    #111113
+  );
+  --hero-top: #070708;
+  --card-shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 14px 34px rgb(0 0 0 / 35%);
+  --card-shadow-raised:
+    0 2px 4px rgb(0 0 0 / 35%), 0 28px 54px rgb(0 0 0 / 50%);
+  --accent: var(--accent-light);
+  --accent-text: var(--accent-light);
+  --scene-accent: var(--accent-light);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   position: relative;
   isolation: isolate;
   color: var(--ink);
   background: var(--surface-soft);
+  color-scheme: dark;
+}
+
+:global(html[data-theme="light"]) .page {
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --line: rgb(0 0 0 / 8%);
+  --surface: color-mix(in srgb, var(--service-accent) var(--page-tint), #fff);
+  --surface-soft: color-mix(
+    in srgb,
+    var(--service-accent) calc(var(--page-tint) * 0.9),
+    #f5f5f7
+  );
+  --surface-more: color-mix(
+    in srgb,
+    var(--service-accent) calc(var(--page-tint) * 0.6),
+    #fff
+  );
+  --hero-top: #fff;
+  --card-shadow: 0 1px 2px rgb(0 0 0 / 4%), 0 12px 30px rgb(0 0 0 / 6%);
+  --card-shadow-raised: 0 2px 4px rgb(0 0 0 / 5%), 0 26px 50px rgb(0 0 0 / 12%);
+  --accent: color-mix(in srgb, var(--service-accent) 82%, #000);
+  --accent-text: color-mix(in srgb, var(--service-accent) 72%, #000);
+  --scene-accent: var(--service-accent);
   color-scheme: light;
 }
 
-/* The studio's pills, adjusted to sit on a light page. */
-.page :global(.pill-primary) {
-  background: linear-gradient(145deg, #3a301f, #1f1a12);
-  box-shadow:
-    inset 1px 1px 1px #fff3,
-    inset -2px -3px 5px #0005,
-    0 8px 20px rgb(90 63 20 / 25%);
-}
-
-.page :global(.pill-secondary) {
-  background: #fff;
-  color: var(--ink);
-  box-shadow:
-    inset 0 0 0 1px rgb(0 0 0 / 10%),
-    0 6px 16px rgb(0 0 0 / 8%);
-}
-
-.page :global(.pill-secondary .pill-icon) {
-  background: var(--surface-soft);
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 10%);
-  color: var(--ink);
+/* On the white page the glass secondary pill needs a solid base to read. */
+:global(html[data-theme="light"]) .hero :global(.pill-secondary) {
+  background-color: #3a3833;
 }
 
 .night :global(.pill-secondary) {
@@ -58,7 +85,7 @@
 
 .eyebrow {
   margin: 0;
-  color: var(--service-accent);
+  color: var(--accent-text);
   font-family: "Big Shoulders", "Manrope Variable", sans-serif;
   font-size: clamp(1rem, 1.4vw, 1.2rem);
   font-weight: 700;
@@ -101,7 +128,7 @@
   gap: 0.9rem;
 }
 
-/* Opening screen: white, centred over the gold hairline lens. */
+/* Opening screen: centred over the live hairline scene. */
 
 .hero {
   position: relative;
@@ -116,7 +143,7 @@
       color-mix(in srgb, var(--service-accent) 9%, transparent),
       transparent 72%
     ),
-    linear-gradient(180deg, #fff, var(--surface-soft));
+    linear-gradient(180deg, var(--hero-top), var(--surface-soft));
 }
 
 .heroInner {
@@ -136,6 +163,16 @@
   margin-top: 0.7rem;
 }
 
+/* The overview's lede, set like the Work page's. */
+.heroLede {
+  max-width: 54ch;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.3vw, 1.16rem);
+  line-height: 1.75;
+  text-wrap: balance;
+}
+
 .heroTitle {
   max-width: 16ch;
   margin: 0;
@@ -151,6 +188,10 @@
   letter-spacing: -0.05em;
   line-height: 1.02;
   text-wrap: balance;
+  /* Room below the baseline so descenders such as the y in Photography are
+     not cut off by the clipped gradient. */
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
 }
 
 .back {
@@ -183,7 +224,7 @@
 }
 
 .more {
-  background: #fff;
+  background: var(--surface-more);
 }
 
 /* Service cards: white, softly shadowed, with a slow line of light round the edge. */
@@ -206,6 +247,8 @@
 }
 
 .card {
+  /* Each card keeps its own service's colour for its label and prompt. */
+  --card-accent: color-mix(in srgb, var(--service-accent) 55%, #fff);
   position: relative;
   isolation: isolate;
   display: grid;
@@ -216,12 +259,14 @@
   background: var(--surface);
   color: var(--ink);
   text-decoration: none;
-  box-shadow:
-    0 1px 2px rgb(0 0 0 / 4%),
-    0 12px 30px rgb(0 0 0 / 6%);
+  box-shadow: var(--card-shadow);
   transition:
     transform 500ms var(--ease-out),
     box-shadow 500ms var(--ease-out);
+}
+
+:global(html[data-theme="light"]) .card {
+  --card-accent: color-mix(in srgb, var(--service-accent) 72%, #000);
 }
 
 /* The running edge light, drawn only on the border ring. */
@@ -258,8 +303,7 @@
 
 .card:is(:hover, :focus-visible) {
   box-shadow:
-    0 2px 4px rgb(0 0 0 / 5%),
-    0 26px 50px rgb(0 0 0 / 12%),
+    var(--card-shadow-raised),
     0 0 0 1px color-mix(in srgb, var(--service-accent) 25%, transparent);
   transform: translateY(-6px);
 }
@@ -312,7 +356,7 @@
   align-items: center;
   gap: 0.3rem;
   margin-top: 0.3rem;
-  color: var(--service-accent);
+  color: var(--card-accent);
   font-size: 0.93rem;
   font-weight: 650;
 }
@@ -322,40 +366,11 @@
 }
 
 .card:is(:hover, :focus-visible) .cardLabel {
-  color: var(--service-accent);
+  color: var(--card-accent);
 }
 
 .card:is(:hover, :focus-visible) .cardMore span {
   transform: translateX(4px);
-}
-
-/* Service page: the media and one calm statement of what it is for. */
-
-.showcase {
-  padding-top: clamp(0.5rem, 2vw, 1.5rem);
-  background: var(--surface-soft);
-}
-
-.showcaseInner {
-  display: grid;
-  justify-items: center;
-  gap: clamp(2.5rem, 5vw, 3.5rem);
-}
-
-.showcaseInner > figure {
-  width: min(100%, 62rem);
-}
-
-.statementText {
-  max-width: 34ch;
-  margin: 0;
-  color: var(--ink);
-  font-size: clamp(1.3rem, 2.4vw, 1.85rem);
-  font-weight: 650;
-  letter-spacing: -0.025em;
-  line-height: 1.38;
-  text-align: center;
-  text-wrap: balance;
 }
 
 .deliverables {
@@ -372,9 +387,7 @@
   border-top: 3px solid var(--service-accent);
   border-radius: 1.5rem;
   background: var(--surface);
-  box-shadow:
-    0 1px 2px rgb(0 0 0 / 4%),
-    0 12px 30px rgb(0 0 0 / 6%);
+  box-shadow: var(--card-shadow);
 }
 
 .deliverable h3,
@@ -541,126 +554,13 @@
   outline-offset: 3px;
 }
 
-/* Service media: a large rounded screen with the clip or film frames. */
-
-.media {
-  min-width: 0;
-  margin: 0;
+/* Related films sit on the dark band; captions take the service's light accent. */
+.relatedFilms {
+  --film-caption: var(--service-accent);
+  display: grid;
+  gap: clamp(1.4rem, 3vw, 2.4rem);
 }
 
-.screen {
-  position: relative;
-  isolation: isolate;
-  aspect-ratio: 1.58;
-  overflow: hidden;
-  border: 0;
-  border-radius: 1.75rem;
-  background:
-    radial-gradient(ellipse at 50% 47%, #1c1c20, transparent 60%), #0b0b0d;
-  box-shadow:
-    0 2rem 4rem rgb(0 0 0 / 18%),
-    0 0 6rem color-mix(in srgb, var(--service-accent) 8%, transparent);
-}
-
-.screen::after {
-  position: absolute;
-  z-index: 1;
-  inset: 0.6rem;
-  border: 1px solid rgb(255 255 255 / 30%);
-  border-radius: 0.7rem;
-  content: "";
-  opacity: 0;
-  pointer-events: none;
-}
-
-.mediaImage,
-.video {
-  object-fit: cover;
-}
-
-.screen[data-framing="portrait"] .mediaImage {
-  object-fit: contain;
-}
-
-.video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: opacity 260ms ease;
-}
-
-.video[data-ready="true"] {
-  opacity: 1;
-}
-
-.motionControl,
-.mediaNotice {
-  position: absolute;
-  z-index: 2;
-  padding: 0.52rem 0.85rem;
-  border: 1px solid rgb(255 255 255 / 30%);
-  border-radius: 5rem;
-  margin: 0;
-  background: rgb(14 12 10 / 70%);
-  color: #fff8e7;
-  font-size: 0.8rem;
-  font-weight: 800;
-  backdrop-filter: blur(12px);
-}
-
-.motionControl {
-  right: 1.15rem;
-  bottom: 1.15rem;
-  display: flex;
-  min-height: 2.75rem;
-  align-items: center;
-  gap: 0.45rem;
-  cursor: pointer;
-}
-
-.motionControl svg {
-  width: 1rem;
-}
-
-.mediaNotice {
-  top: 1rem;
-  left: 1rem;
-  max-width: calc(100% - 2rem);
-}
-
-button.mediaNotice {
-  min-height: 2.75rem;
-  cursor: pointer;
-}
-
-.treatments {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.45rem;
-  padding-top: 1rem;
-}
-
-.treatments button {
-  min-height: 2.75rem;
-  padding: 0.35rem 0.9rem;
-  border: 1px solid var(--line);
-  border-radius: 5rem;
-  background: #fff;
-  color: var(--muted);
-  font-size: 0.81rem;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.treatments button:is(:hover, :focus-visible, [aria-pressed="true"]) {
-  border-color: var(--service-accent);
-  color: var(--service-accent);
-}
-
-/* Wide screens: the timeline runs across, stage markers above their cards. */
 @media (min-width: 56rem) {
   .track {
     top: calc(var(--marker) / 2 - 1px);
@@ -717,8 +617,7 @@ button.mediaNotice {
   .cardMedia img,
   .cardMore span,
   .marker,
-  .stageCard,
-  .video {
+  .stageCard {
     transition: none;
   }
 
@@ -734,5 +633,18 @@ button.mediaNotice {
 
   .card:is(:hover, :focus-visible) .cardMedia img {
     transform: scale(1.18);
+  }
+}
+
+/* Phones: both hero buttons share one width, stacked. */
+@media (max-width: 30rem) {
+  .hero .actions {
+    display: grid;
+    width: min(100%, 17.5rem);
+  }
+
+  .hero .actions > a {
+    width: 100%;
+    justify-content: space-between;
   }
 }

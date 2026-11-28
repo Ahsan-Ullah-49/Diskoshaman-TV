@@ -1,0 +1,144 @@
+/* Filters sit in one glass capsule; the chosen category fills with gold. */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem 1rem;
+  padding: 0.4rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 1.6rem;
+  margin-bottom: clamp(2rem, 5vw, 3.75rem);
+  background: rgb(255 255 255 / 4%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 8%);
+  backdrop-filter: blur(16px);
+}
+
+.controls > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.05rem 0.5rem;
+}
+
+.controls button {
+  min-height: 2.75rem;
+  padding: 0.2rem clamp(0.75rem, 1.5vw, 1.2rem);
+  border: 1px solid transparent;
+  border-radius: 5rem;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background-color 260ms ease,
+    border-color 260ms ease,
+    color 260ms ease;
+}
+
+.controls button:is(:hover, :focus-visible, [aria-pressed="true"]) {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.controls button[aria-pressed="true"] {
+  border-color: transparent;
+  background: linear-gradient(140deg, #f7d58e, #cc9828);
+  color: #1e1608;
+}
+
+.count {
+  padding: 0.25rem 0.55rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.groups {
+  display: grid;
+  gap: clamp(3.5rem, 8vw, 6.5rem);
+}
+
+.group {
+  display: grid;
+  gap: clamp(1.4rem, 3vw, 2.4rem);
+}
+
+/* Each category is announced like a chapter: centred title over a gold rule. */
+.groupHead {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  text-align: center;
+}
+
+.groupHead h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.groupHead::after {
+  width: min(9rem, 40%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  content: "";
+}
+
+.groupCount {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  color: color-mix(in srgb, var(--accent) 70%, transparent);
+  font-family: "Big Shoulders", "Manrope Variable", sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transform: translateY(-60%);
+}
+
+/* One film per row on phones; landscape films go two across from tablets. */
+.landscape,
+.portrait {
+  display: grid;
+  gap: clamp(1.4rem, 3vw, 2.6rem) clamp(1rem, 2.4vw, 2.2rem);
+}
+
+.portrait {
+  justify-content: center;
+  grid-template-columns: minmax(0, min(100%, 21rem));
+}
+
+@media (max-width: 43.99rem) {
+  .groupCount {
+    display: none;
+  }
+}
+
+@media (min-width: 44rem) {
+  .landscape {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .portrait {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .portrait {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controls button {
+    transition: none;
+  }
+}

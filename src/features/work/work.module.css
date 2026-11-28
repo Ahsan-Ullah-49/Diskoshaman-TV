@@ -1,10 +1,9 @@
 /*
  * Work page: a screening room. A projector beam with drifting dust lights the
- * hero, a ring of posters turns beneath the title, and the archive sits on a
- * clean near-black floor with glass controls.
+ * hero and leans toward the pointer, a ring of posters turns beneath the
+ * title, and the content library sits on a clean near-black floor.
  */
 .hero,
-.featured,
 .archive {
   --ink: #f7f1e6;
   --muted: #bdb5a9;
@@ -84,11 +83,6 @@
   text-transform: uppercase;
 }
 
-.featured {
-  padding-block: clamp(3.5rem, 8vw, 6.5rem);
-  border-top: 1px solid var(--line);
-}
-
 .archive {
   padding-block: clamp(3.5rem, 8vw, 7rem);
   border-top: 1px solid var(--line);
@@ -97,351 +91,42 @@
     #07070a;
 }
 
+/* Phones: both hero buttons share one width, stacked. */
+@media (max-width: 30rem) {
+  .heroActions {
+    display: grid;
+    width: min(100%, 17.5rem);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heroActions > a {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
 .sectionHead {
-  margin-bottom: clamp(1.8rem, 4vw, 3rem);
-}
-
-.grid {
   display: grid;
-  gap: clamp(1.8rem, 4.5vw, 4.3rem) clamp(1rem, 2.6vw, 2.75rem);
+  justify-items: center;
+  gap: 0.9rem;
+  margin-bottom: clamp(2rem, 4.5vw, 3.4rem);
+  text-align: center;
 }
 
-.card {
-  position: relative;
-  min-width: 0;
+.sectionLine {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.4vw, 1.18rem);
+  line-height: 1.6;
+  text-wrap: balance;
 }
 
-.watchLink {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--ink);
-  font: inherit;
-  text-align: start;
-  cursor: pointer;
-  text-decoration: none;
-  text-underline-offset: 0.22em;
-}
-
-.watchLink::after {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  border-radius: 0.5rem;
-  content: "";
-}
-
-.watchLink:focus-visible::after {
-  outline: 2px solid var(--accent);
-  outline-offset: 4px;
-}
-
-.cardMedia,
 .dialogScreen {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   background: #1b1819;
-}
-
-.cardMedia {
-  aspect-ratio: 1.66;
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 1rem;
-  box-shadow: 0 1.2rem 2.6rem rgb(0 0 0 / 40%);
-  transition:
-    transform 600ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 400ms ease,
-    border-color 400ms ease;
-}
-
-/* A sheen crosses the poster when the card is pointed at. */
-.cardMedia::before {
-  position: absolute;
-  z-index: 1;
-  inset: -40% auto -40% -60%;
-  width: 40%;
-  background: linear-gradient(
-    100deg,
-    transparent,
-    rgb(255 248 230 / 22%),
-    transparent
-  );
-  content: "";
-  transform: skewX(-18deg);
-  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
-  pointer-events: none;
-}
-
-.card[data-portrait="true"] .poster {
-  object-position: center 55%;
-}
-
-.poster {
-  object-fit: cover;
-}
-
-.cardMedia::after {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(155deg, transparent 50%, #0005);
-  content: "";
-  pointer-events: none;
-}
-
-.playIcon {
-  position: absolute;
-  z-index: 1;
-  right: 0.95rem;
-  bottom: 0.95rem;
-  display: grid;
-  width: 3.1rem;
-  aspect-ratio: 1;
-  place-items: center;
-  border: 1px solid rgb(255 255 255 / 40%);
-  border-radius: 50%;
-  background: rgb(14 12 10 / 55%);
-  color: #fff7e9;
-  backdrop-filter: blur(10px);
-  transition:
-    background-color 300ms ease,
-    border-color 300ms ease,
-    color 300ms ease,
-    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.playIcon svg {
-  width: 1.2rem;
-}
-
-.card:has(.watchLink:is(:hover, :focus-visible)) .playIcon {
-  border-color: #efbd78;
-  background: linear-gradient(140deg, #f7d58e, #cc9828);
-  color: #24160f;
-  transform: scale(1.12);
-}
-
-.card:has(.watchLink:is(:hover, :focus-visible)) .cardMedia {
-  border-color: rgb(239 189 120 / 55%);
-  box-shadow:
-    0 1.8rem 3.4rem rgb(0 0 0 / 55%),
-    0 0 2.6rem rgb(204 152 40 / 22%);
-}
-
-.cardTitle {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 0.8rem;
-  padding-block: 0.9rem 0.1rem;
-}
-
-.cardTitle > svg {
-  flex: none;
-  width: 1.15rem;
-  color: var(--accent);
-}
-
-.category {
-  margin: 0;
-  color: var(--accent);
-  font-size: 0.8rem;
-  font-weight: 750;
-}
-
-.cardTitle h3 {
-  margin: 0.22rem 0 0;
-  font-size: clamp(1.12rem, 2vw, 1.72rem);
-  letter-spacing: -0.03em;
-  line-height: 1.25;
-  text-wrap: pretty;
-}
-
-.card:has(.watchLink:is(:hover, :focus-visible)) .watchLink {
-  text-decoration: underline;
-  text-decoration-color: var(--accent);
-}
-
-/* Filters sit in one glass capsule; the chosen category fills with gold. */
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.45rem 1rem;
-  padding: 0.4rem;
-  border: 1px solid rgb(255 255 255 / 12%);
-  border-radius: 1.6rem;
-  margin-bottom: clamp(1.6rem, 4vw, 3.25rem);
-  background: rgb(255 255 255 / 4%);
-  box-shadow: inset 0 1px rgb(255 255 255 / 8%);
-  backdrop-filter: blur(16px);
-}
-
-.controls > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.05rem 0.5rem;
-}
-
-.controls button {
-  min-height: 2.75rem;
-  padding: 0.2rem clamp(0.75rem, 1.5vw, 1.2rem);
-  border: 1px solid transparent;
-  border-radius: 5rem;
-  background: transparent;
-  color: var(--muted);
-  font-size: 0.84rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition:
-    background-color 260ms ease,
-    border-color 260ms ease,
-    color 260ms ease;
-}
-
-.controls button:is(:hover, :focus-visible, [aria-pressed="true"]) {
-  border-color: var(--accent);
-  color: var(--ink);
-}
-
-.controls button[aria-pressed="true"] {
-  border-color: transparent;
-  background: linear-gradient(140deg, #f7d58e, #cc9828);
-  color: #1e1608;
-}
-
-.count {
-  padding: 0.25rem 0.55rem;
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.more {
-  margin-top: clamp(1.5rem, 5vw, 4rem);
-}
-
-.more summary {
-  display: flex;
-  padding-inline: 1.2rem;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 3%);
-  min-height: 3.6rem;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-block: 0.5rem;
-  border-block: 1px solid var(--line);
-  color: var(--ink);
-  font-weight: 800;
-  list-style: none;
-  cursor: pointer;
-}
-
-.more summary::-webkit-details-marker {
-  display: none;
-}
-
-.more[open] summary {
-  margin-bottom: 2rem;
-}
-
-.more:not([open]) .showLess,
-.more[open] .showMore {
-  display: none;
-}
-
-.moreIcon {
-  position: relative;
-  width: 1.1rem;
-  height: 1.1rem;
-  color: var(--accent);
-}
-
-.moreIcon::before,
-.moreIcon::after {
-  position: absolute;
-  top: 50%;
-  inset-inline: 12%;
-  height: 1px;
-  background: currentColor;
-  content: "";
-}
-
-.moreIcon::after {
-  transform: rotate(90deg);
-}
-
-.more[open] .moreIcon::after {
-  display: none;
-}
-
-@media (min-width: 44rem) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .grid[data-archive] {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-
-  .grid[data-archive] .card {
-    grid-column: span 5;
-  }
-
-  .grid[data-archive] .card:nth-child(4n + 1),
-  .grid[data-archive] .card:nth-child(4n) {
-    grid-column: span 7;
-  }
-
-  .grid[data-archive] .card:nth-child(4n + 2),
-  .grid[data-archive] .card:nth-child(4n + 3) {
-    align-self: end;
-  }
-}
-
-@media (min-width: 68rem) {
-  .grid:not([data-archive]):has(.card:nth-child(3)) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .poster {
-    transition: transform 550ms cubic-bezier(0.18, 0.76, 0.28, 1);
-  }
-
-  .cardTitle > svg {
-    transition: transform 280ms ease;
-  }
-
-  :global(html[data-motion="running"])
-    .card:has(.watchLink:is(:hover, :focus-visible))
-    .poster {
-    transform: scale(1.06);
-  }
-
-  /* The poster lifts and tips toward the visitor. */
-  :global(html[data-motion="running"])
-    .card:has(.watchLink:is(:hover, :focus-visible))
-    .cardMedia {
-    transform: perspective(60rem) rotateX(5deg) translateY(-6px);
-  }
-
-  :global(html[data-motion="running"])
-    .card:has(.watchLink:is(:hover, :focus-visible))
-    .cardMedia::before {
-    transform: translateX(480%) skewX(-18deg);
-  }
-
-  :global(html[data-motion="running"])
-    .card:has(.watchLink:is(:hover, :focus-visible))
-    .cardTitle
-    > svg {
-    transform: translate(0.18rem, -0.18rem);
-  }
 }
 
 :global(html):has(.dialog[open]) {

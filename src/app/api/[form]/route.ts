@@ -1,9 +1,7 @@
-import { after } from "next/server";
 import {
   deliverForm,
   formDelivery,
   formMode,
-  trackConversion,
 } from "@/features/contact/delivery";
 import { isFormKind, validateForm } from "@/features/contact/form-fields";
 
@@ -44,7 +42,8 @@ export async function POST(
   { params }: { params: Promise<{ form: string }> },
 ) {
   const { form } = await params;
-  if (!isFormKind(form))
+  // Enquiries go straight from the browser to Web3Forms.
+  if (!isFormKind(form) || form === "enquiry")
     return Response.json({ status: "unavailable" }, { status: 404 });
   if (request.headers.get("sec-fetch-site") === "cross-site") {
     return Response.json({ status: "invalid" }, { status: 403 });
@@ -81,8 +80,6 @@ export async function POST(
   const id = payload.id;
   try {
     if (await deliverForm(delivery, id, values)) {
-      if (form === "enquiry")
-        after(() => trackConversion("enquiry_accepted", id));
       return Response.json({ status: "sent" });
     }
   } catch {

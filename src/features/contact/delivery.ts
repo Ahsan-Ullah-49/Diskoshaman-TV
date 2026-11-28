@@ -1,18 +1,13 @@
 import { indexable } from "@/lib/metadata";
-import { formFields, type FormKind, type FormMode } from "./form-fields";
+import type { FormKind, FormMode } from "./form-fields";
+import { web3formsAccessKey } from "./web3forms";
 
-type EnquiryDelivery = {
-  kind: "enquiry";
-  apiKey: string;
-  from: string;
-  to: string;
-};
-type RetainedDelivery = {
+/** Survey and newsletter answers go to the studio's existing providers. */
+type Delivery = {
   kind: "survey" | "newsletter";
   endpoint: URL;
   token: string | undefined;
 };
-type Delivery = EnquiryDelivery | RetainedDelivery;
 
 function httpsUrl(value: string | undefined) {
   if (!value) return null;
@@ -35,15 +30,9 @@ export function bookingUrl() {
   return url.href;
 }
 
+/** The server delivery for a form, or null. Enquiries are sent from the browser. */
 export function formDelivery(kind: FormKind): Delivery | null {
-  if (kind === "enquiry") {
-    const {
-      RESEND_API_KEY: apiKey,
-      ENQUIRY_FROM_EMAIL: from,
-      ENQUIRY_TO_EMAIL: to,
-    } = process.env;
-    return apiKey && from && to ? { kind, apiKey, from, to } : null;
-  }
+  if (kind === "enquiry") return null;
 
   const endpoint = httpsUrl(
     kind === "survey"
@@ -58,7 +47,9 @@ export function formDelivery(kind: FormKind): Delivery | null {
 }
 
 export function formMode(kind: FormKind): FormMode {
-  if (formDelivery(kind)) return "live";
+  const ready =
+    kind === "enquiry" ? Boolean(web3formsAccessKey) : formDelivery(kind);
+  if (ready) return "live";
   return indexable ? "unavailable" : "preview";
 }
 
@@ -73,27 +64,6 @@ export async function deliverForm(
   };
   const signal = AbortSignal.timeout(9000);
 
-  if (delivery.kind === "enquiry") {
-    headers.Authorization = `Bearer ${delivery.apiKey}`;
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers,
-      signal,
-      body: JSON.stringify({
-        from: delivery.from,
-        to: [delivery.to],
-        reply_to: values.email,
-        subject: "Diskoshaman TV project enquiry",
-        text: formFields.enquiry
-          .map(({ name, label }) => `${label}\n${values[name]}`)
-          .join("\n\n"),
-      }),
-    });
-    if (!response.ok) return false;
-    const receipt: { id?: string } = await response.json();
-    return typeof receipt.id === "string" && receipt.id.length > 0;
-  }
-
   if (delivery.token) headers.Authorization = `Bearer ${delivery.token}`;
   const response = await fetch(delivery.endpoint, {
     method: "POST",
@@ -104,10 +74,7 @@ export async function deliverForm(
   return response.ok;
 }
 
-export async function trackConversion(
-  event: "booking_clicked" | "enquiry_accepted",
-  id: string,
-) {
+export async function trackConversion(event: "booking_clicked", id: string) {
   const endpoint = httpsUrl(process.env.CONVERSION_ENDPOINT);
   if (!endpoint) return;
   const token = process.env.CONVERSION_ENDPOINT_TOKEN;

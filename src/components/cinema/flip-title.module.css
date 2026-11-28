@@ -44,6 +44,11 @@
   font-size: min(9rem, 17cqi);
 }
 
+/* A hero title that must share one screen with its copy and buttons. */
+.title[data-size="display"][data-fit] .word {
+  font-size: min(9rem, 17cqi, 13.5svh);
+}
+
 .title[data-size="section"] .word {
   font-size: min(6.4rem, 14cqi);
 }

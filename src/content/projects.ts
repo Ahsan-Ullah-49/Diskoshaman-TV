@@ -39,7 +39,8 @@ const portfolio: ProjectRecord[] = [
   {
     slug: "beast-philanthropy",
     title: "Beast Philanthropy",
-    category: "documentary",
+    // Listed under Brand Collaborations in the published content library.
+    category: "brand",
     summary: "A short documentary-style film for Beast Philanthropy.",
     credit: "Short documentary",
     vimeoId: "1004315356",

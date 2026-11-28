@@ -20,7 +20,9 @@ const starCount = 70;
 /**
  * Tilted gold orbits, like the globe in the studio emblem, with points of
  * light travelling around them and faint stars behind. "Infinity lies
- * within." Decorative; with motion off it draws a single still frame.
+ * within." The orbits centre on `centre`, a share of the frame, or on the
+ * `[data-orbit-anchor]` element in the same section when there is one.
+ * Decorative; with motion off it draws a single still frame.
  */
 export function OrbitField({
   centre = { x: 0.7, y: 0.5 },
@@ -54,12 +56,27 @@ export function OrbitField({
       phase: random() * Math.PI * 2,
     }));
 
+    let cx = centreX;
+    let cy = centreY;
+    const anchor = surface.parentElement?.querySelector<HTMLElement>(
+      "[data-orbit-anchor]",
+    );
+
     function resize() {
       width = surface!.clientWidth;
       height = surface!.clientHeight;
       surface!.width = Math.round(width * pixelRatio);
       surface!.height = Math.round(height * pixelRatio);
       context!.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      cx = centreX * width;
+      cy = centreY * height;
+      // Both scroll together, so the anchor's offset only changes with layout.
+      if (anchor) {
+        const frame = surface!.getBoundingClientRect();
+        const target = anchor.getBoundingClientRect();
+        cx = target.left + target.width / 2 - frame.left;
+        cy = target.top + target.height / 2 - frame.top;
+      }
     }
 
     function draw(seconds: number) {
@@ -75,8 +92,6 @@ export function OrbitField({
         );
       }
 
-      const cx = centreX * width;
-      const cy = centreY * height;
       const unit = Math.min(width, height * 1.4);
       // The whole system turns very slowly; each ring is a tilted ellipse.
       const spin = seconds * 0.03;
@@ -129,6 +144,7 @@ export function OrbitField({
       draw(0);
     });
     observer.observe(surface);
+    if (anchor) observer.observe(anchor);
     if (enabled) frame = requestAnimationFrame(tick);
     else draw(0);
     return () => {

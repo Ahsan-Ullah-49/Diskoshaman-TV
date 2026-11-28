@@ -12,11 +12,8 @@ import {
   type Texture,
 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import {
-  canvasPixelRatio,
-  createFrameGate,
-  wantsAntialias,
-} from "@/lib/render-quality";
+import { createFrameGate } from "@/lib/render-quality";
+import { sharpenEmblemTextures } from "./emblem-textures";
 
 export type MarkPlayer = {
   setRunning: (running: boolean) => void;
@@ -79,7 +76,9 @@ export async function createStudioMark(
     renderer = new WebGLRenderer({
       canvas,
       alpha: true,
-      antialias: wantsAntialias(),
+      // The mark is a small canvas, so it keeps full edge quality even when
+      // WebGL is drawn in software.
+      antialias: true,
       powerPreference: "low-power",
     });
   } catch (error) {
@@ -98,7 +97,11 @@ export async function createStudioMark(
   scene.add(model, key, rim, new HemisphereLight(0xfff3d5, 0x78644e, 1.9));
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.setClearColor(0, 0);
-  renderer.setPixelRatio(canvasPixelRatio(2));
+  // Draw at least twice the CSS size so the lettering stays crisp on 1x screens.
+  renderer.setPixelRatio(
+    Math.min(Math.max(window.devicePixelRatio || 1, 2), 3),
+  );
+  sharpenEmblemTextures(model, renderer);
   // Only the globe turns by itself. The monogram keeps the angle chosen by the visitor.
   letters.rotation.order = "XYZ";
   let targetTilt = 0;

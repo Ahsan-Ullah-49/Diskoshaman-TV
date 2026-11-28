@@ -88,6 +88,11 @@ export function SiteFooter() {
               aria-labelledby="newsletter-title"
             >
               <h2 id="newsletter-title">Subscribe to our newsletter</h2>
+              {/* Draft wording of the current site's line, for Hammad's review. */}
+              <p className={styles.newsletterLine}>
+                Sign up to our newsletter for updates, news, insights and
+                promotions.
+              </p>
               <StudioForm kind="newsletter" mode={formMode("newsletter")} />
               <ul className={styles.social} aria-label="Follow the studio">
                 {contactLinks.map(({ label, platform, href }) => (
@@ -112,7 +117,7 @@ export function SiteFooter() {
           <small>
             © {new Date().getFullYear()} {site.name}. All rights reserved.
           </small>
-          <BackToTop className={styles.top} />
+          <BackToTop />
         </div>
       </div>
     </footer>

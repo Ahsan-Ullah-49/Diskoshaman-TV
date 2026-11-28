@@ -1,10 +1,14 @@
+import { serviceNavigation } from "@/content/services";
+
 export type FormKind = "enquiry" | "survey" | "newsletter";
 
 export type FormField = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "email" | "tel" | "website" | "radio";
+  type: "text" | "textarea" | "email" | "tel" | "website" | "radio" | "select";
   maxLength?: number;
+  /** Optional fields may be left empty; an empty value is not sent. */
+  optional?: boolean;
   options?: readonly string[];
   fullWidth?: boolean;
   autoComplete?: string;
@@ -33,11 +37,22 @@ const phone: FormField = {
   autoComplete: "tel",
 };
 
+// Sits beside the phone number; "Select service" shows until one is chosen.
+const service: FormField = {
+  name: "service",
+  label: "Service",
+  type: "select",
+  optional: true,
+  placeholder: "Select service",
+  options: serviceNavigation.map(({ label }) => label),
+};
+
 export const formFields: Record<FormKind, readonly FormField[]> = {
   enquiry: [
     name,
     email,
     phone,
+    service,
     {
       name: "message",
       label: "Tell us about your project",
@@ -115,7 +130,7 @@ export const formFields: Record<FormKind, readonly FormField[]> = {
 
 export const formCopy = {
   enquiry: {
-    submit: "Send a project enquiry",
+    submit: "Submit form",
     success: "Enquiry sent. We’ll be in touch about your project.",
   },
   survey: {
@@ -150,6 +165,7 @@ function isWebsite(value: string) {
 }
 
 function fieldError(field: FormField, value: string) {
+  if (!value && field.optional) return null;
   if (!value) {
     if (field.options) return "Choose an answer.";
     if (field.type === "email") return "Enter your email address.";

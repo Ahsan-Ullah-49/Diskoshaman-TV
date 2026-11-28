@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { sharpenEmblemTextures } from "@/components/brand/emblem-textures";
 import {
   canvasPixelRatio,
   createFrameGate,
@@ -905,6 +906,7 @@ export async function mountStudioCamera(
         "",
       );
       model = loaded;
+      sharpenEmblemTextures(loaded, renderer);
       // Measure the model on its own, centre it, then size it to the front element.
       const bounds = new THREE.Box3().setFromObject(loaded);
       const size = bounds.getSize(new THREE.Vector3());

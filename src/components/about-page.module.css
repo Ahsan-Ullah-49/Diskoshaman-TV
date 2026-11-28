@@ -1,6 +1,7 @@
 /*
  * About: deep night-blue black with tilted gold orbits, a nod to the globe in
- * the studio emblem. Glass frames and cards carry the people and the process.
+ * the studio emblem, and the turning emblem at their centre. Glass frames and
+ * cards carry the people; the process rides its own orbit.
  */
 .hero,
 .story,
@@ -18,10 +19,15 @@
   color-scheme: dark;
 }
 
+/* The hero fills one screen with its copy centred, so the buttons never
+   fall below the fold and no empty band sits above the title. */
 .hero {
+  display: grid;
+  min-height: 100svh;
+  align-content: center;
   overflow: clip;
-  padding-block: calc(var(--header-height) + clamp(2.5rem, 7vw, 5rem))
-    clamp(3.5rem, 7vw, 6rem);
+  padding-block: calc(var(--header-height) + clamp(1rem, 3vh, 2rem))
+    clamp(1.5rem, 4vh, 3rem);
   background:
     radial-gradient(55% 60% at 74% 50%, rgb(70 90 140 / 14%), transparent 70%),
     radial-gradient(40% 50% at 20% 30%, rgb(204 152 40 / 7%), transparent 70%),
@@ -43,6 +49,14 @@
   min-width: 0;
 }
 
+.welcome {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.08rem, 1.6vw, 1.35rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
 .lede {
   max-width: 50ch;
   margin: 0;
@@ -58,32 +72,15 @@
   gap: 0.7rem;
 }
 
-/* Studio still in a glass frame with an orbit ring turning around it. */
-.heroFrame,
+.heroEmblem {
+  width: min(78%, 21rem);
+}
+
 .portraitFrame {
   position: relative;
   min-width: 0;
 }
 
-.heroFrame::before,
-.heroFrame::after {
-  position: absolute;
-  z-index: -1;
-  inset: -9% -7%;
-  border: 1px solid rgb(231 186 96 / 32%);
-  border-radius: 50%;
-  content: "";
-  transform: rotate(-14deg) scaleY(0.42);
-  pointer-events: none;
-}
-
-.heroFrame::after {
-  inset: -16% -13%;
-  border-color: rgb(231 186 96 / 16%);
-  transform: rotate(-8deg) scaleY(0.36);
-}
-
-.still,
 .portrait {
   position: relative;
   margin: 0;
@@ -96,11 +93,6 @@
     0 0 4rem rgb(204 152 40 / 10%);
 }
 
-.still {
-  aspect-ratio: 4 / 3;
-}
-
-.still img,
 .portrait img {
   object-fit: cover;
 }
@@ -350,85 +342,20 @@
   text-transform: uppercase;
 }
 
-/* Process timeline */
+/* Process: the steps ride their own orbit (process-orbit.module.css). */
 
 .process {
   padding-block: clamp(4rem, 8vw, 7rem);
   border-top: 1px solid var(--line);
 }
 
-.timeline {
-  position: relative;
-  display: grid;
-  gap: 2rem;
-  margin: clamp(2.2rem, 4vw, 3.2rem) 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* The thread that joins the steps. */
-.timeline::before {
-  position: absolute;
-  top: 1.6rem;
-  bottom: 1.6rem;
-  left: 1.6rem;
-  width: 1px;
-  background: linear-gradient(
-    180deg,
-    rgb(231 186 96 / 70%),
-    rgb(231 186 96 / 10%)
-  );
-  content: "";
-}
-
-.timeline li {
-  position: relative;
-  display: grid;
-  gap: 0.6rem;
-  padding-inline-start: 4.6rem;
-}
-
-.node {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: grid;
-  width: 3.2rem;
-  height: 3.2rem;
-  place-items: center;
-  border: 1px solid rgb(231 186 96 / 50%);
-  border-radius: 50%;
-  background: #0d0f14;
-  box-shadow: 0 0 1.4rem rgb(204 152 40 / 22%);
-  color: var(--accent);
-  font-family: "Big Shoulders", "Manrope Variable", sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.timeline h3 {
-  margin: 0.55rem 0 0;
-  font-size: clamp(1.25rem, 2vw, 1.55rem);
-  letter-spacing: -0.02em;
-}
-
-.timeline p {
-  max-width: 38ch;
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.75;
-}
-
-.processActions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.8rem 1.6rem;
-}
-
 @media (min-width: 52rem) {
   .heroGrid {
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  }
+
+  .heroEmblem {
+    width: min(100%, 30rem, 62svh);
   }
 
   .storyGrid {
@@ -442,30 +369,13 @@
   .producerGrid {
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   }
+}
 
-  /* On wide screens the steps run left to right along one gold thread. */
-  .timeline {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2.4rem;
-  }
-
-  .timeline::before {
-    top: 1.6rem;
-    right: 8%;
-    bottom: auto;
-    left: 1.6rem;
-    width: auto;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      rgb(231 186 96 / 70%),
-      rgb(231 186 96 / 10%)
-    );
-  }
-
-  .timeline li {
-    padding-inline-start: 0;
-    padding-top: 4.4rem;
+/* Phones: the hero buttons sit centred under the copy. */
+@media (max-width: 51.99rem) {
+  .actions {
+    justify-self: stretch;
+    justify-content: center;
   }
 }
 

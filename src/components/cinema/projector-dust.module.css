@@ -23,6 +23,9 @@
   clip-path: polygon(46% 0, 54% 0, 86% 100%, 14% 100%);
   filter: blur(14px);
   transform-origin: 50% 0;
+  /* The angle is eased in script toward the pointer or a gentle sway. */
+  rotate: var(--beam-angle, 0deg);
+  will-change: rotate;
 }
 
 :global([data-motion="running"]) .beam {
@@ -33,7 +36,6 @@
   0%,
   100% {
     opacity: 0.92;
-    transform: rotate(-1.5deg);
   }
   40% {
     opacity: 1;
@@ -43,8 +45,26 @@
   }
   52% {
     opacity: 1;
-    transform: rotate(1.5deg);
   }
+}
+
+/* A soft pool of light where the beam lands on the pointer. */
+.pool {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 26rem;
+  height: 26rem;
+  margin: -13rem 0 0 -13rem;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 236 200 / 16%),
+    rgb(231 186 96 / 6%) 55%,
+    transparent
+  );
+  opacity: var(--pool-opacity, 0);
+  transform: translate3d(var(--pool-x, 50%), var(--pool-y, 50%), 0);
+  will-change: transform, opacity;
 }
 
 .dust {

@@ -1,14 +1,13 @@
 import Image from "next/image";
-import Link from "next/link";
 import { pages, bookingPath } from "@/content/site";
 import { producer, productionSteps, studioAbout } from "@/content/studio";
-import { DiagonalArrow } from "./cinema/diagonal-arrow";
+import { OrbitEmblem } from "./brand/orbit-emblem";
 import { FlipTitle } from "./cinema/flip-title";
 import { FocusFrame } from "./cinema/focus-frame";
-import cinema from "./cinema/cinema.module.css";
 import { OrbitField } from "./cinema/orbit-field";
 import { ScrollReveal } from "./cinema/scroll-reveal";
 import { PillLink } from "./pill-link";
+import { ProcessOrbit } from "./process-orbit";
 import styles from "./about-page.module.css";
 
 const [producerFirstName, ...producerRest] = producer.name.split(" ");
@@ -20,12 +19,14 @@ const pillars = [
 
 /**
  * About: the studio's motto, "Infinity lies within", carried by tilted gold
- * orbits like the globe in its emblem. All copy is the studio's published text.
+ * orbits like the globe in its emblem, with the turning emblem at their
+ * centre. All copy is the studio's published text.
  */
 export function AboutPage() {
   return (
     <>
       <section className={styles.hero} aria-labelledby="about-title">
+        {/* The orbits centre on the emblem through its data-orbit-anchor. */}
         <OrbitField centre={{ x: 0.74, y: 0.52 }} />
         <div className={`container ${styles.heroGrid}`}>
           <div className={styles.heroCopy}>
@@ -35,7 +36,12 @@ export function AboutPage() {
               label={pages.about.heading}
               words={["Infinity", "lies within"]}
               size="display"
+              fitHeight
             />
+            {/* The heading the studio's current About page opens with. */}
+            <p className={styles.welcome}>
+              Welcome to DiskoShaman TV – Where Ideas Come to Life!
+            </p>
             <p className={styles.lede}>{pages.about.intro}</p>
             <div className={styles.actions}>
               <PillLink href="#how-we-work" arrow="right">
@@ -46,18 +52,7 @@ export function AboutPage() {
               </PillLink>
             </div>
           </div>
-          <FocusFrame className={styles.heroFrame}>
-            <figure className={styles.still}>
-              <Image
-                src="/media/studio/on-set.webp"
-                alt="The Diskoshaman TV crew filming on set"
-                fill
-                sizes="(min-width: 52rem) 44vw, 92vw"
-                fetchPriority="high"
-                loading="eager"
-              />
-            </figure>
-          </FocusFrame>
+          <OrbitEmblem className={styles.heroEmblem} />
         </div>
       </section>
 
@@ -142,28 +137,9 @@ export function AboutPage() {
             id="process-title"
             label="How we work"
             words={["From brief", "to final cut"]}
+            align="center"
           />
-          <ScrollReveal>
-            <ol className={styles.timeline}>
-              {productionSteps.map(({ title, description }, index) => (
-                <li key={title} data-reveal>
-                  <span className={styles.node}>
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <h3>{title}</h3>
-                  <p>{description}</p>
-                </li>
-              ))}
-            </ol>
-            <div className={styles.processActions} data-reveal>
-              <PillLink href={pages.services.path}>
-                Explore our services
-              </PillLink>
-              <Link href={pages.work.path} className={cinema.lineLink}>
-                See our work <DiagonalArrow />
-              </Link>
-            </div>
-          </ScrollReveal>
+          <ProcessOrbit steps={productionSteps} />
         </div>
       </section>
     </>

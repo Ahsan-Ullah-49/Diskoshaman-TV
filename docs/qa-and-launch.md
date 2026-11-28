@@ -66,6 +66,19 @@ Target 1 December 2026 if the build, content and integrations are ready and Hamm
 - Reviewed the projection set at 1440 × 960 and 390 × 844 px. Checked forward and reverse camera movement, all four category controls, arrow wraparound, keyboard and touch selection, the 16:9 player and legible titles. Checked reduced motion at 320 × 660 px. Used simulated Vimeo ready and error responses to verify the recovery action and release of the offscreen player.
 - In local Chrome, verified muted autoplay by observing each published Vimeo film advance inside its frame. Patrick Bet-David: Facility Tour played on a separate recheck after its first stream stalled. Check real devices, captions, sound controls and the approved production hostname at release.
 
+## Selected work layout revision, 28 November 2026
+
+- Checked the left-hand film scene and right-hand project list at 1440 × 960 px, the stacked layout at 390 × 844 px, and reduced motion at 320 × 660 px. Checked the 16:9 frame, project titles, and the All Films button and destination.
+- Confirmed the transport renders with WebGL in the full homepage. With simulated Vimeo messages, verified that rapid switching mounts only the last selection, the side arrows wrap, failed films can retry in place, and the player and canvas release when scrolled out of view.
+- Rio Tinto, Beast Philanthropy and Patrick Bet-David: Facility Tour played muted in the updated frame. The Birth of the Automobile reached the Vimeo ready event, then its stream requests aborted before playback advanced.
+- Verified the upright covers and unclipped deck in Chrome at 1372 × 656, 1024 × 600, 1440 × 900 and 390 × 844 px. All project rows and All Films fit at the tested desktop sizes. Checked the still deck and full list at 320 × 568 px with reduced motion. Used simulated Vimeo readiness to verify selecting the last project and wrapping to the first with the next arrow at each size.
+
+## Manager review changes, 28 November 2026
+
+- Checked in headless Chrome at 1366 × 768 and 1366 × 640 px and at 390 × 844 px (2× phone): the new emblem texture in the header, footer and About hero; the header tab in the dark and light themes; the footer sign-off with the arrow-only Back to top and the copyright on one line; the Work hero buttons, Content Library groups, frames and filters; the Services overview and all five service heroes in the dark theme, and the overview, Corporate and Photography in the light theme; the About hero fitting one screen and the process orbit; the Contact hero, glass cards, service list and centred Submit form.
+- Vimeo playback could not be confirmed on this machine: the headless browser has no GPU and the app's browser pane blocks Vimeo frames, and the existing Home player fails the same way there. The library keeps its posters when Vimeo does not report ready. Confirm muted autoplay in the library and Related work, the hold-to-show Back to top hint on a real phone, and a Web3Forms test submission with and without a service before release.
+- Pending client input: the Web3Forms access key, Hammad's review of the newsletter line and of the subheadings copied from the current site.
+
 ## Performance evidence
 
 The local production previews used Chromium 153 and a 390 × 844 phone viewport at 2× device scale. Each run used a fresh browser context, disabled cache, 4× CPU throttling, 150 ms latency, 1.6 Mbps download and 0.75 Mbps upload. The table records the first-pass baseline from 26 November 2026.

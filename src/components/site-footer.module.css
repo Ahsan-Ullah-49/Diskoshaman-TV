@@ -196,6 +196,14 @@
   min-width: 0;
 }
 
+.newsletterLine {
+  max-width: 38ch;
+  margin: -0.4rem 0 1.1rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
 .social {
   display: flex;
   gap: 0.7rem;
@@ -258,11 +266,10 @@
   text-transform: uppercase;
   white-space: nowrap;
   user-select: none;
-  transition:
-    --spot-x 450ms cubic-bezier(0.22, 1, 0.36, 1),
-    --spot-y 450ms cubic-bezier(0.22, 1, 0.36, 1),
-    --spot-size 600ms cubic-bezier(0.22, 1, 0.36, 1),
-    letter-spacing 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* The letters rise from below this edge as the page ends. */
+  overflow: clip;
+  /* The spotlight position is eased in script; only its size fades here. */
+  transition: --spot-size 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .wordBase,
@@ -271,36 +278,39 @@
   padding-bottom: 0.06em;
 }
 
-.wordBase span,
-.wordLit span {
+/* Each letter carries its own fill so it can rise on its own. */
+.wordLetter {
+  display: inline-block;
+  background: var(--word-fill);
+  background-clip: text;
+  color: transparent;
+}
+
+.wordSuffix {
   margin-inline-start: 0.12em;
 }
 
 /* Solid, sculpted letters sit in front of the 3D background; nothing shows through them. */
 .wordBase {
-  background: linear-gradient(
+  --word-fill: linear-gradient(
     180deg,
     #57524a 0%,
     #2a2723 38%,
     #141311 72%,
     #0b0a09 100%
   );
-  background-clip: text;
-  color: transparent;
   filter: drop-shadow(0 0.03em 0.06em rgb(0 0 0 / 70%));
 }
 
 /* Molten gold under a soft spotlight that follows the pointer. */
 .wordLit {
-  background: linear-gradient(
+  --word-fill: linear-gradient(
     170deg,
     #fff4d6 0%,
     #f1c873 32%,
     #cc9828 58%,
     #7d5413 100%
   );
-  background-clip: text;
-  color: transparent;
   mask: radial-gradient(
     circle var(--spot-size) at var(--spot-x) var(--spot-y),
     #000 0%,
@@ -312,7 +322,6 @@
 
 .wordmark[data-lit] {
   --spot-size: 22cqi;
-  letter-spacing: 0.005em;
 }
 
 /* With no pointer on it, a gentle light passes along the name by itself. */
@@ -370,7 +379,7 @@
     background-color 240ms ease;
 }
 
-.top span {
+.topIcon {
   display: grid;
   width: 2rem;
   height: 2rem;
@@ -395,8 +404,55 @@
   background: rgb(204 152 40 / 14%);
 }
 
-.top:is(:hover, :focus-visible) span {
+.top:is(:hover, :focus-visible) .topIcon {
   transform: translateY(-3px);
+}
+
+.top {
+  position: relative;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* The long-press name for the arrow-only button on phones. */
+.topHint {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.55rem);
+  padding: 0.42rem 0.7rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.5rem;
+  background: rgb(24 22 19 / 94%);
+  box-shadow: 0 0.5rem 1.4rem rgb(0 0 0 / 45%);
+  color: var(--ink);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.3rem) scale(0.96);
+  transform-origin: bottom right;
+  transition:
+    opacity 180ms ease,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.topHint::after {
+  position: absolute;
+  right: 1rem;
+  bottom: -0.32rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-right: 1px solid rgb(255 255 255 / 14%);
+  border-bottom: 1px solid rgb(255 255 255 / 14%);
+  background: rgb(24 22 19);
+  content: "";
+  transform: rotate(45deg);
+}
+
+.topHint[data-shown="true"] {
+  opacity: 1;
+  transform: none;
 }
 
 /* Phones and tablets: the emblem leads the footer, centred and larger. */
@@ -414,6 +470,16 @@
 
 /* Phones keep Back to top small and on the right, beside the copyright. */
 @media (max-width: 40rem) {
+  /* The ribbon flows in its own gap under the name instead of across the letters. */
+  .signoff .wordmark {
+    margin-bottom: 1.5rem;
+  }
+
+  .signoff .ribbon {
+    inset: auto 0 3.7rem;
+    height: 3.6rem;
+  }
+
   .base {
     flex-wrap: nowrap;
     font-size: 0.78rem;
@@ -423,17 +489,40 @@
     min-width: 0;
   }
 
+  /* Only the arrow shows; press and hold names it. */
   .top {
     flex: none;
-    min-height: 2.5rem;
-    gap: 0.45rem;
-    padding: 0.2rem 0.25rem 0.2rem 0.75rem;
-    font-size: 0.76rem;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    backdrop-filter: none;
   }
 
-  .top span {
-    width: 1.75rem;
-    height: 1.75rem;
+  .top:is(:hover, :focus-visible) {
+    background: none;
+  }
+
+  .topLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .topIcon {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+@media (min-width: 40.01rem) {
+  .topHint {
+    display: none;
   }
 }
 
@@ -457,7 +546,8 @@
   .column a::before,
   .social a,
   .top,
-  .top span {
+  .topIcon,
+  .topHint {
     transition: none;
   }
 
@@ -466,7 +556,7 @@
   }
 
   .social a:is(:hover, :focus-visible),
-  .top:is(:hover, :focus-visible) span {
+  .top:is(:hover, :focus-visible) .topIcon {
     transform: none;
   }
 }

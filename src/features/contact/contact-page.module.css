@@ -1,66 +1,93 @@
 /*
- * Contact: a near-black page with gold signal lines flowing behind it, the
- * title and ways to reach the studio up top, then two glass cards for the
- * call and the enquiry.
+ * Contact: a centred opening screen over gold signal lines, then the call
+ * and the enquiry in frosted glass over slowly drifting light.
  */
 .page {
   --ink: #f7f1e6;
   --muted: #bcb5aa;
   --accent: #efbd78;
   --line: rgb(255 255 255 / 16%);
-  /* Form fields read these, so inputs sit as dark glass inside the card. */
-  --page: rgb(255 255 255 / 3%);
-  --panel: rgb(255 255 255 / 6%);
+  /* Form fields read these, so inputs sit as clear glass inside the card. */
+  --page: rgb(255 255 255 / 4%);
+  --panel: rgb(255 255 255 / 9%);
   position: relative;
   isolation: isolate;
   overflow: clip;
-  padding-block: calc(var(--header-height) + clamp(2.5rem, 7vw, 5rem))
-    clamp(4rem, 8vw, 7rem);
   color: var(--ink);
-  background:
-    radial-gradient(60% 45% at 50% 60%, rgb(204 152 40 / 7%), transparent 70%),
-    radial-gradient(50% 40% at 85% 10%, rgb(255 255 255 / 4%), transparent 70%),
-    #08080a;
+  background: #08080a;
   color-scheme: dark;
 }
 
-/* The signal lines run behind the opening screen only, clear of the form. */
-.page .waves {
-  bottom: auto;
-  height: min(100svh, 50rem);
-  mask: linear-gradient(#000 70%, transparent);
+/* Opening screen: centred like the Work and Services heroes. */
+.hero {
+  position: relative;
+  display: grid;
+  min-height: min(100svh, 56rem);
+  align-content: center;
+  padding-block: calc(var(--header-height) + clamp(2rem, 6vh, 4rem))
+    clamp(3rem, 8vh, 5rem);
+  background:
+    radial-gradient(60% 50% at 50% 55%, rgb(204 152 40 / 8%), transparent 70%),
+    radial-gradient(50% 40% at 85% 10%, rgb(255 255 255 / 4%), transparent 70%),
+    #08080a;
 }
 
-.layout {
+.hero .waves {
+  mask: linear-gradient(transparent, #000 18%, #000 75%, transparent);
+}
+
+.heroInner {
   position: relative;
   z-index: 1;
   display: grid;
-  gap: clamp(2.5rem, 6vw, 4.5rem);
+  justify-items: center;
+  gap: clamp(1.1rem, 2.4vw, 1.6rem);
+  text-align: center;
 }
 
-.hero {
-  display: grid;
-  justify-items: start;
-  gap: clamp(1.1rem, 2.4vw, 1.6rem);
-  max-width: 52rem;
+.tagline {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 12px #08080a;
+}
+
+.eyebrow {
+  margin: 0 0 -0.4rem;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .lede {
-  max-width: 50ch;
+  max-width: 52ch;
   margin: 0;
   color: var(--muted);
   font-size: clamp(1.02rem, 1.3vw, 1.18rem);
   line-height: 1.75;
+  text-wrap: balance;
   /* Keeps the intro crisp where the signal lines pass behind it. */
   text-shadow:
     0 1px 12px #08080a,
     0 0 4px #08080a;
 }
 
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+}
+
 .reach {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 0.6rem 1rem;
   margin: 0;
   padding: 0;
@@ -123,14 +150,76 @@
   transform: translateY(-3px);
 }
 
-/* Cards */
+/* Cards over drifting light */
+
+.panels {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(3rem, 7vw, 6rem) clamp(4rem, 8vw, 7rem);
+}
+
+.glow {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.glow span {
+  position: absolute;
+  width: clamp(20rem, 45vw, 38rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+}
+
+.glow span:nth-child(1) {
+  top: 4%;
+  left: 6%;
+  background: radial-gradient(closest-side, #c9922c, transparent);
+}
+
+.glow span:nth-child(2) {
+  top: 28%;
+  right: 4%;
+  background: radial-gradient(closest-side, #8a4b23, transparent);
+}
+
+.glow span:nth-child(3) {
+  bottom: 0;
+  left: 34%;
+  background: radial-gradient(closest-side, #3c4f7a, transparent);
+  opacity: 0.4;
+}
+
+:global([data-motion="running"]) .glow span {
+  animation: glow-drift 22s ease-in-out infinite alternate;
+}
+
+:global([data-motion="running"]) .glow span:nth-child(2) {
+  animation-duration: 28s;
+  animation-direction: alternate-reverse;
+}
+
+:global([data-motion="running"]) .glow span:nth-child(3) {
+  animation-duration: 34s;
+}
+
+@keyframes glow-drift {
+  to {
+    transform: translate3d(12%, 10%, 0) scale(1.15);
+  }
+}
 
 .cards {
   display: grid;
   align-items: start;
-  gap: 1.2rem;
+  gap: 1.4rem;
 }
 
+/* Frosted glass after Apple's own: a bright rim, a soft top light and deep blur. */
 .card {
   position: relative;
   display: grid;
@@ -138,18 +227,21 @@
   justify-items: start;
   gap: 1rem;
   min-width: 0;
-  padding: clamp(1.5rem, 3.5vw, 2.6rem);
-  border: 1px solid rgb(255 255 255 / 12%);
-  border-radius: 1.75rem;
-  background: linear-gradient(
-    160deg,
-    rgb(255 255 255 / 7%),
-    rgb(255 255 255 / 2%)
-  );
+  padding: clamp(1.6rem, 3.5vw, 2.8rem);
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 2rem;
+  background:
+    radial-gradient(
+      120% 60% at 20% 0%,
+      rgb(255 255 255 / 12%),
+      transparent 60%
+    ),
+    linear-gradient(160deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 3%));
   box-shadow:
-    inset 0 1px rgb(255 255 255 / 10%),
-    0 2rem 4rem rgb(0 0 0 / 35%);
-  backdrop-filter: blur(22px) saturate(140%);
+    inset 0 1px rgb(255 255 255 / 28%),
+    inset 0 -1px rgb(255 255 255 / 6%),
+    0 2.4rem 5rem rgb(0 0 0 / 45%);
+  backdrop-filter: blur(30px) saturate(170%);
   scroll-margin-top: calc(var(--header-height) + 1rem);
 }
 
@@ -245,11 +337,28 @@
     transition: none;
   }
 
+  .glow span {
+    animation: none;
+  }
+
   .social:is(:hover, :focus-visible) {
     transform: none;
   }
 
   .sweep {
     animation: none;
+  }
+}
+
+/* Phones: both hero buttons share one width, stacked. */
+@media (max-width: 30rem) {
+  .heroActions {
+    display: grid;
+    width: min(100%, 17.5rem);
+  }
+
+  .heroActions > a {
+    width: 100%;
+    justify-content: space-between;
   }
 }

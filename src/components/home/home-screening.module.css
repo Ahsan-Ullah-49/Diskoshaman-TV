@@ -241,8 +241,7 @@
   --case-edge: #8a8880;
   transform: translate(-50%, -50%)
     translate3d(var(--offset-x, 0%), var(--offset-y, 0%), var(--offset-z, 0rem))
-    rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
-    rotateZ(var(--roll, 0deg)) scale(var(--frame-scale, 1));
+    scale(var(--frame-scale, 1));
   transform-style: preserve-3d;
 }
 
@@ -250,33 +249,22 @@
   --case-edge: #cbb69a;
 }
 
+.carrier:is([data-frame-position="left"], [data-frame-position="right"]) {
+  --offset-z: -9rem;
+  --frame-scale: 0.72;
+}
+
 .carrier[data-frame-position="right"] {
-  --offset-x: 49%;
-  --offset-y: -8%;
-  --offset-z: -9.25rem;
-  --tilt-x: 5deg;
-  --tilt-y: -48deg;
-  --roll: 7deg;
-  --frame-scale: 0.8;
+  --offset-x: 44%;
 }
 
 .carrier[data-frame-position="left"] {
-  --offset-x: -51%;
-  --offset-y: 11%;
-  --offset-z: -10rem;
-  --tilt-x: -5deg;
-  --tilt-y: 48deg;
-  --roll: -9deg;
-  --frame-scale: 0.77;
+  --offset-x: -44%;
 }
 
 .carrier[data-frame-position="back"] {
-  --offset-x: -12%;
-  --offset-y: -51%;
+  --offset-y: -47%;
   --offset-z: -17rem;
-  --tilt-x: 16deg;
-  --tilt-y: -20deg;
-  --roll: -8deg;
   --frame-scale: 0.66;
 }
 
@@ -445,6 +433,38 @@
   cursor: pointer;
 }
 
+@media (min-width: 52rem) and (max-height: 48rem) {
+  .room {
+    padding-block: clamp(1rem, 3.25svh, 1.75rem);
+  }
+
+  .layout {
+    grid-template-rows: auto auto;
+  }
+
+  .title {
+    margin-bottom: clamp(0.75rem, 2.2svh, 1.25rem);
+    font-size: clamp(2.75rem, min(5.7vw, 10svh), 5rem);
+  }
+
+  .installation {
+    --film-width: min(69%, 37rem, 82svh);
+  }
+
+  .stage {
+    height: clamp(20rem, calc(100svh - var(--header-height) - 5.25rem), 30rem);
+  }
+
+  .program button {
+    min-height: 3.25rem;
+    padding-block: 0.42rem;
+  }
+
+  .browse > a {
+    margin-top: clamp(0.9rem, 2.8svh, 1.35rem);
+  }
+}
+
 @media (max-width: 51.99rem) {
   .layout {
     grid-template: "title" "projection" "browse" / minmax(0, 1fr);
@@ -473,7 +493,12 @@
     perspective: 730px;
   }
 
+  .browse {
+    display: grid;
+  }
+
   .browse > a {
+    justify-self: center;
     margin-top: 1.4rem;
   }
 }
@@ -492,17 +517,16 @@
     padding-inline: 0.12rem;
   }
 
-  .carrier[data-frame-position="left"],
-  .carrier[data-frame-position="right"] {
+  .carrier:is([data-frame-position="left"], [data-frame-position="right"]) {
     --offset-z: -4.4rem;
   }
 
   .carrier[data-frame-position="left"] {
-    --offset-x: -56%;
+    --offset-x: -34%;
   }
 
   .carrier[data-frame-position="right"] {
-    --offset-x: 56%;
+    --offset-x: 34%;
   }
 
   .carrier[data-frame-position="back"] {

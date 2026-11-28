@@ -11,7 +11,11 @@ export function SurveySection() {
     >
       <details className={`container ${styles.surveyDetails}`}>
         <summary>
-          <h2 id="survey-title">Video production survey</h2>
+          <div>
+            <h2 id="survey-title">Video production survey</h2>
+            {/* The heading the studio's current site uses for the survey. */}
+            <p className={styles.surveyLine}>Take a part in this survey</p>
+          </div>
           <span aria-hidden="true" />
         </summary>
         <div className={styles.surveyContent}>
