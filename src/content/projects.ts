@@ -17,7 +17,6 @@ export type HomeScreeningFilm = {
   project: Project;
   category: string;
   label: string;
-  seconds: number;
 };
 
 export type HomeScreeningProgram = readonly [
@@ -335,25 +334,21 @@ export const homeScreeningFilms = [
     project: rioTinto,
     category: "Corporate & Investor Communications",
     label: "Rio Tinto",
-    seconds: 107,
   },
   {
     project: beastPhilanthropy,
     category: "Brand Collaborations",
     label: "Beast Philanthropy",
-    seconds: 150,
   },
   {
     project: facilityTour,
     category: "Executive & Creator Highlights",
     label: "Patrick Bet-David: Facility Tour",
-    seconds: 108,
   },
   {
     project: birthOfTheAutomobile,
     category: "Long-Form Cinematic Projects",
     label: "The Birth of the Automobile",
-    seconds: 459,
   },
 ] as const satisfies HomeScreeningProgram;
 

@@ -2,6 +2,13 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import {
+  canvasPixelRatio,
+  createFrameGate,
+  isSoftwareRenderer,
+  wantsAntialias,
+} from "@/lib/render-quality";
+import { surfaceMaterial } from "./scene-materials";
 
 export type StudioCameraScene = {
   /** 0 is the exploded camera, 1 the assembled one with the emblem showing. */
@@ -319,10 +326,10 @@ export async function mountStudioCamera(
   const renderer = new THREE.WebGLRenderer({
     canvas,
     alpha: true,
-    antialias: true,
+    antialias: wantsAntialias(),
     powerPreference: "low-power",
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
+  renderer.setPixelRatio(canvasPixelRatio(1.4));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
@@ -330,7 +337,10 @@ export async function mountStudioCamera(
   const scene = new THREE.Scene();
   const environment = new THREE.PMREMGenerator(renderer);
   const room = new RoomEnvironment();
-  scene.environment = environment.fromScene(room, 0.04).texture;
+  // A smaller reflection map in software keeps the first build from freezing the page.
+  scene.environment = environment.fromScene(room, 0.04, 0.1, 100, {
+    size: isSoftwareRenderer() ? 64 : 256,
+  }).texture;
   scene.environmentIntensity = 0.6;
   room.dispose?.();
 
@@ -378,7 +388,7 @@ export async function mountStudioCamera(
     beamAlpha,
   ];
 
-  const body = new THREE.MeshPhysicalMaterial({
+  const body = surfaceMaterial({
     color: "#09090a",
     metalness: 0.05,
     roughness: 0.58,
@@ -403,7 +413,7 @@ export async function mountStudioCamera(
     roughness: 0.72,
     envMapIntensity: 0.5,
   });
-  const lensShell = new THREE.MeshPhysicalMaterial({
+  const lensShell = surfaceMaterial({
     color: "#0a0a0b",
     metalness: 0.15,
     roughness: 0.32,
@@ -423,7 +433,7 @@ export async function mountStudioCamera(
     emissiveIntensity: 0,
   });
   // Multi-coated glass picks up the violet and green sheen of a real front element.
-  const frontGlass = new THREE.MeshPhysicalMaterial({
+  const frontGlass = surfaceMaterial({
     color: "#0a0c14",
     metalness: 0.2,
     roughness: 0.04,
@@ -438,8 +448,10 @@ export async function mountStudioCamera(
   });
   const innerGlass = frontGlass.clone();
   innerGlass.opacity = 0.75;
-  innerGlass.iridescenceThicknessMinimum = 400;
-  innerGlass.iridescenceThicknessMaximum = 900;
+  if (innerGlass instanceof THREE.MeshPhysicalMaterial) {
+    innerGlass.iridescenceThicknessMinimum = 400;
+    innerGlass.iridescenceThicknessMaximum = 900;
+  }
   const shadow = new THREE.MeshStandardMaterial({
     color: "#040405",
     roughness: 0.95,
@@ -986,7 +998,10 @@ export async function mountStudioCamera(
     if (!disposed) renderer.render(scene, view);
   }
 
+  // Software rendering draws at 30 fps; skipped frames keep their time for the next.
+  const gate = createFrameGate();
   function frame(time: number) {
+    if (!gate(time)) return;
     const elapsed = Math.min(time - previous, 60) / 1000;
     previous = time;
     const seconds = time / 1000;
@@ -1046,6 +1061,12 @@ export async function mountStudioCamera(
     renderer.setSize(width, height, false);
     render();
   }
+
+  // Compile every shader before the first frame. With parallel compilation
+  // the browser does this off the main thread, so the page keeps scrolling
+  // instead of freezing for seconds while the camera is built.
+  beamMesh.visible = true;
+  await renderer.compileAsync(scene, view);
 
   const observer = new ResizeObserver(resize);
   observer.observe(stage);

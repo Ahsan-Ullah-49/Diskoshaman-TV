@@ -1,6 +1,11 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { brandLogoSource, brandLogos } from "@/content/brand-logos";
+import {
+  canvasPixelRatio,
+  createFrameGate,
+  wantsAntialias,
+} from "@/lib/render-quality";
 import { createReelAtmosphere } from "./brand-reel-atmosphere";
 
 const radius = 3.14;
@@ -12,6 +17,8 @@ const idleDelay = 1450;
 const idleLogosPerSecond = 0.3;
 
 export type BrandReelScene = {
+  /** Pause drawing while the reel is off screen, without tearing it down. */
+  setRunning: (running: boolean) => void;
   followScroll: (turn: number, finished: boolean) => void;
   turnBy: (direction: number) => number;
   setAutoRotation: (playing: boolean) => void;
@@ -87,7 +94,7 @@ export function mountBrandReel(
 ): BrandReelScene {
   const renderer = new THREE.WebGLRenderer({
     canvas,
-    antialias: true,
+    antialias: wantsAntialias(),
     powerPreference: "low-power",
   });
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -378,6 +385,7 @@ export function mountBrandReel(
   let lastFrame = 0;
   let seconds = 0;
   let idleFrame = 0;
+  let paused = false;
   let emblem: { globe: THREE.Object3D; letters: THREE.Object3D } | undefined;
   const emblemLoad = new AbortController();
 
@@ -407,9 +415,24 @@ export function mountBrandReel(
 
   function invalidate() {
     window.clearTimeout(idleFrame);
-    if (!frame && !disposed && !contextLost) {
+    if (!frame && !disposed && !contextLost && !paused) {
       frame = requestAnimationFrame(draw);
     }
+  }
+
+  // Off screen the scene keeps its GPU state but draws nothing, so coming
+  // back into view is instant instead of rebuilding the whole reel.
+  function setRunning(running: boolean) {
+    paused = !running;
+    if (paused) {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      window.clearTimeout(idleFrame);
+      return;
+    }
+    lastFrame = performance.now();
+    scrollChanged = true;
+    invalidate();
   }
 
   function noteInput() {
@@ -417,8 +440,14 @@ export function mountBrandReel(
     invalidate();
   }
 
+  const gate = createFrameGate();
   function draw(now: number) {
     frame = 0;
+    // Software rendering draws at 30 fps; skipped frames wait for the next.
+    if (!gate(now)) {
+      frame = requestAnimationFrame(draw);
+      return;
+    }
     if (scrollChanged) {
       const { top, height } = stage.getBoundingClientRect();
       const viewport = window.innerHeight;
@@ -541,7 +570,7 @@ export function mountBrandReel(
     // Extend the camera to the whole room without changing the reel's layout slot.
     camera.setViewOffset(slot.width, slot.height, -left, -top, width, height);
     const scale = Math.min(
-      window.devicePixelRatio,
+      canvasPixelRatio(1.35),
       1.35,
       Math.sqrt(1500000 / (width * height)),
     );
@@ -602,6 +631,7 @@ export function mountBrandReel(
   });
 
   return {
+    setRunning,
     followScroll(nextTurn, completed) {
       if (alignToScroll) {
         // Resume on the nearest equivalent lap after a manual or idle turn.

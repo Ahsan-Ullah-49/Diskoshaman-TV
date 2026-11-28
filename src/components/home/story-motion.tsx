@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/motion";
+import { gsap, useGSAP } from "@/lib/motion";
 import { useStudioMotion } from "../studio-motion";
 import styles from "./story.module.css";
 
@@ -136,12 +136,9 @@ export function StoryMotion({
         );
       });
 
-      // After client navigation the page above may still be settling. Measure
-      // again once this section has laid out, so the scrubbed title and words
-      // never follow positions from the page that was just left.
-      const settle = requestAnimationFrame(() =>
-        requestAnimationFrame(() => ScrollTrigger.refresh()),
-      );
+      // SiteScroll re-measures every scene once a newly opened page settles,
+      // so the scrubbed title and words never keep positions from the page
+      // that was just left.
 
       const screens = gsap.matchMedia();
       screens.add(
@@ -211,7 +208,6 @@ export function StoryMotion({
       );
 
       return () => {
-        cancelAnimationFrame(settle);
         screens.revert();
       };
     },

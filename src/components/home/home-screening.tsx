@@ -1,16 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { DiagonalArrow } from "@/components/cinema/diagonal-arrow";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from "react";
 import cinema from "@/components/cinema/cinema.module.css";
+import { PillLink } from "@/components/pill-link";
 import { useStudioMotion } from "@/components/studio-motion";
 import type { HomeScreeningProgram, Project } from "@/content/projects";
 import { pages } from "@/content/site";
 import { embedUrl, vimeoOrigin } from "@/features/work/vimeo-film";
 import { gsap, useGSAP } from "@/lib/motion";
 import { useVisible } from "@/lib/use-visible";
+import type { ScreeningDeckScene } from "./screening-deck-scene";
 import styles from "./home-screening.module.css";
 
 type PlayerMessage = {
@@ -142,23 +148,81 @@ function InlineScreeningPlayer({
   );
 }
 
-function runningTime(seconds: number) {
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+function ScreeningDeck({
+  selection,
+  approach,
+}: {
+  selection: number;
+  approach: RefObject<number>;
+}) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const scene = useRef<ScreeningDeckScene | null>(null);
+  const selected = useRef(selection);
+
+  useEffect(() => {
+    selected.current = selection;
+  }, [selection]);
+
+  useEffect(() => {
+    const surface = canvas.current;
+    if (!surface) return;
+    let cancelled = false;
+    void import("./screening-deck-scene")
+      .then(({ mountScreeningDeck }) => {
+        if (cancelled) return;
+        scene.current = mountScreeningDeck(surface, () => ({
+          selection: selected.current,
+          approach: approach.current,
+        }));
+      })
+      .catch(() => {
+        // The on-set photograph and the still deck already fill the stage.
+      });
+    return () => {
+      cancelled = true;
+      scene.current?.dispose();
+      scene.current = null;
+    };
+  }, [approach]);
+
+  return <canvas ref={canvas} className={styles.deck} aria-hidden="true" />;
 }
 
 const framePositions = ["front", "right", "back", "left"] as const;
+const frameTravel = 860;
+const motionTiming = { "--frame-travel": `${frameTravel}ms` } as CSSProperties;
 
 export function HomeScreening({ films }: { films: HomeScreeningProgram }) {
   const { enabled } = useStudioMotion();
   const section = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const rig = useRef<HTMLDivElement>(null);
+  const aperture = useRef<HTMLDivElement>(null);
+  const approach = useRef(1);
   const anchorSettled = useRef(false);
   const visible = useVisible(stage);
+  const filmVisible = useVisible(aperture);
   const [selection, setSelection] = useState(0);
-  const { project, label, seconds } = films[selection];
+  const [seated, setSeated] = useState(true);
+  const { project, label } = films[selection];
   const previous = (selection + films.length - 1) % films.length;
   const next = (selection + 1) % films.length;
+
+  function selectFilm(index: number) {
+    if (index === selection) return;
+    setSeated(false);
+    setSelection(index);
+  }
+
+  useEffect(() => {
+    if (seated) return;
+    // Keep the provider window level and wait for the new cover to seat in it.
+    const timeout = window.setTimeout(
+      () => setSeated(true),
+      enabled ? frameTravel : 0,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [enabled, seated, selection]);
 
   useEffect(() => {
     if (
@@ -187,18 +251,25 @@ export function HomeScreening({ films }: { films: HomeScreeningProgram }) {
       // Scroll sets the camera angle. The film carriers rotate independently.
       gsap.fromTo(
         rig.current,
-        { rotationX: 12, rotationY: -25, z: -130, y: 42 },
+        { rotationX: 22, rotationY: -42, rotationZ: -6, z: -185, y: 56 },
         {
           rotationX: 0,
           rotationY: 0,
+          rotationZ: 0,
           z: 0,
           y: 0,
           ease: "none",
           scrollTrigger: {
             trigger: stage.current,
             start: "top bottom",
-            end: "top 39%",
-            scrub: 0.75,
+            end: "top 43%",
+            scrub: 0.7,
+            onUpdate: ({ progress }) => {
+              approach.current = progress;
+            },
+            onRefresh: ({ progress }) => {
+              approach.current = progress;
+            },
           },
         },
       );
@@ -213,51 +284,36 @@ export function HomeScreening({ films }: { films: HomeScreeningProgram }) {
       className={`${cinema.litSet} ${styles.room}`}
       aria-labelledby="home-work-title"
       data-screen-motion={enabled || undefined}
+      style={motionTiming}
     >
       <div className={`container ${styles.layout}`}>
-        <div className={styles.index}>
-          <h2
-            id="home-work-title"
-            className={`${cinema.heading} ${styles.title}`}
-          >
-            Selected <span>work</span>
-          </h2>
+        <h2
+          id="home-work-title"
+          className={`${cinema.heading} ${styles.title}`}
+        >
+          Selected work
+        </h2>
 
-          <div className={styles.browse}>
-            <div
-              className={styles.program}
-              role="group"
-              aria-label="Film categories"
-            >
-              {films.map((film, index) => (
-                <button
-                  key={film.project.slug}
-                  type="button"
-                  aria-pressed={index === selection}
-                  aria-controls="home-screening"
-                  onClick={() => setSelection(index)}
-                >
-                  {film.category}
-                </button>
-              ))}
-            </div>
-            <Link href={pages.work.path} className={cinema.lineLink}>
-              All films <DiagonalArrow />
-            </Link>
+        <div className={styles.installation}>
+          <div className={styles.setPhoto} aria-hidden="true">
+            <Image
+              src="/media/showreel-still.webp"
+              alt=""
+              sizes="(min-width: 52rem) 63vw, 100vw"
+              fill
+            />
           </div>
-        </div>
-
-        <figure className={styles.installation} data-film={project.slug}>
           <div
             id="home-screening"
             className={styles.stage}
             ref={stage}
             role="region"
             aria-label={label}
-            data-screen-visible={visible || undefined}
           >
-            <div className={styles.spill} aria-hidden="true" />
-            <div className={styles.platform} aria-hidden="true" />
+            <div className={styles.deckStill} aria-hidden="true" />
+            {enabled && visible && (
+              <ScreeningDeck selection={selection} approach={approach} />
+            )}
             <div className={styles.rig} ref={rig}>
               {films.map((film, index) => {
                 const position =
@@ -279,18 +335,24 @@ export function HomeScreening({ films }: { films: HomeScreeningProgram }) {
                           fill
                           sizes="(min-width: 84rem) 580px, (min-width: 52rem) 47vw, 76vw"
                         />
-                        {position === "front" && visible && (
-                          <InlineScreeningPlayer
-                            key={String(enabled)}
-                            project={film.project}
-                            autoplay={enabled}
-                          />
-                        )}
                       </div>
                     </div>
                   </div>
                 );
               })}
+              <div className={styles.gate}>
+                <div className={styles.case}>
+                  <div className={styles.screen} ref={aperture}>
+                    {filmVisible && (seated || !enabled) && (
+                      <InlineScreeningPlayer
+                        key={`${project.slug}-${enabled}`}
+                        project={project}
+                        autoplay={enabled}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
             <div
               className={styles.steps}
@@ -300,20 +362,46 @@ export function HomeScreening({ films }: { films: HomeScreeningProgram }) {
               <button
                 type="button"
                 aria-label="Previous film"
-                onClick={() => setSelection(previous)}
+                onClick={() => selectFilm(previous)}
               />
               <button
                 type="button"
                 aria-label="Next film"
-                onClick={() => setSelection(next)}
+                onClick={() => selectFilm(next)}
               />
             </div>
           </div>
-          <figcaption className={styles.caption} aria-live="polite">
-            <span key={project.slug}>{label}</span>
-            <time dateTime={`PT${seconds}S`}>{runningTime(seconds)}</time>
-          </figcaption>
-        </figure>
+        </div>
+
+        <div className={styles.browse}>
+          <div
+            className={styles.program}
+            role="group"
+            aria-label="Select a project"
+          >
+            {films.map((film, index) => (
+              <button
+                key={film.project.slug}
+                type="button"
+                aria-pressed={index === selection}
+                aria-controls="home-screening"
+                onClick={() => selectFilm(index)}
+              >
+                <span className={styles.thumbnail} aria-hidden="true">
+                  <Image src={film.project.poster} alt="" fill sizes="62px" />
+                </span>
+                <span className={styles.projectText}>
+                  <span className={styles.projectName}>{film.label}</span>
+                  <span className={styles.category}>{film.category}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+          <span className="visually-hidden" aria-live="polite">
+            {label}
+          </span>
+          <PillLink href={pages.work.path}>All Films</PillLink>
+        </div>
       </div>
     </section>
   );

@@ -1,6 +1,13 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import {
+  canvasPixelRatio,
+  createFrameGate,
+  isSoftwareRenderer,
+  wantsAntialias,
+} from "@/lib/render-quality";
+import { surfaceMaterial } from "./scene-materials";
 
 export type FooterDepthScene = {
   setRunning: (running: boolean) => void;
@@ -53,16 +60,16 @@ function scatter(count: number, scaleRange: [number, number]): Drifter[] {
  * with distance. The view leans toward a fine pointer. The caller owns
  * disposal.
  */
-export function mountFooterDepth(
+export async function mountFooterDepth(
   stage: HTMLElement,
   canvas: HTMLCanvasElement,
-): FooterDepthScene {
+): Promise<FooterDepthScene> {
   const renderer = new THREE.WebGLRenderer({
     canvas,
-    antialias: true,
+    antialias: wantsAntialias(),
     powerPreference: "low-power",
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+  renderer.setPixelRatio(canvasPixelRatio(1.25));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.setClearColor(background, 1);
@@ -71,7 +78,10 @@ export function mountFooterDepth(
   scene.fog = new THREE.Fog(background, 7, 24);
   const environment = new THREE.PMREMGenerator(renderer);
   const room = new RoomEnvironment();
-  scene.environment = environment.fromScene(room, 0.04).texture;
+  // A smaller reflection map in software keeps the first build from freezing the page.
+  scene.environment = environment.fromScene(room, 0.04, 0.1, 100, {
+    size: isSoftwareRenderer() ? 64 : 256,
+  }).texture;
   scene.environmentIntensity = 0.55;
   room.dispose?.();
 
@@ -89,7 +99,7 @@ export function mountFooterDepth(
     metalness: 1,
     roughness: 0.24,
   });
-  const glass = new THREE.MeshPhysicalMaterial({
+  const glass = surfaceMaterial({
     color: "#0b0b0d",
     metalness: 0.2,
     roughness: 0.12,
@@ -175,7 +185,10 @@ export function mountFooterDepth(
     if (!disposed) renderer.render(scene, view);
   }
 
+  // Software rendering draws at 30 fps; skipped frames keep their time for the next.
+  const gate = createFrameGate();
   function frame(time: number) {
+    if (!gate(time)) return;
     const elapsed = Math.min(time - previous, 60) / 1000;
     previous = time;
     place(elapsed);
@@ -200,6 +213,10 @@ export function mountFooterDepth(
     place(0);
     render();
   }
+
+  // Compile the shaders off the main thread before the first frame, so the
+  // footer does not freeze the page while it is built.
+  await renderer.compileAsync(scene, view);
 
   const observer = new ResizeObserver(resize);
   observer.observe(stage);

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useStudioMotion } from "@/components/studio-motion";
+import { createFrameGate } from "@/lib/render-quality";
 import { useVisible } from "@/lib/use-visible";
 import styles from "./iris-field.module.css";
 
@@ -153,8 +154,10 @@ export function IrisField({ className }: { className?: string }) {
       context!.stroke();
     }
 
+    // Software rendering draws at 30 fps.
+    const gate = createFrameGate();
     function loop(now: number) {
-      draw(now);
+      if (gate(now)) draw(now);
       frame = requestAnimationFrame(loop);
     }
 

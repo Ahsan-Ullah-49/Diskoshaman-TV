@@ -26,6 +26,26 @@
   min-height: calc(100svh - var(--header-height));
 }
 
+/*
+ * Reserve the reel's scroll distance from the first paint. Waiting for
+ * hydration made the page grow by a few screens after load, which pushed
+ * every later section down while the visitor was already scrolling.
+ * Pausing motion (data-motion="paused" on the root) returns it to a still section.
+ */
+@media (min-height: 31rem) and (prefers-reduced-motion: no-preference) {
+  :global(:root:not([data-motion="paused"])) .section::after {
+    display: block;
+    height: calc(clamp(6.25rem, 17svh, 10rem) * var(--reel-count));
+    content: "";
+  }
+
+  :global(:root:not([data-motion="paused"])) .section .room {
+    position: sticky;
+    top: var(--header-height);
+    min-height: calc(100svh - var(--header-height));
+  }
+}
+
 .layout {
   position: relative;
   display: grid;

@@ -12,6 +12,11 @@ import {
   type Texture,
 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import {
+  canvasPixelRatio,
+  createFrameGate,
+  wantsAntialias,
+} from "@/lib/render-quality";
 
 export type MarkPlayer = {
   setRunning: (running: boolean) => void;
@@ -74,7 +79,7 @@ export async function createStudioMark(
     renderer = new WebGLRenderer({
       canvas,
       alpha: true,
-      antialias: true,
+      antialias: wantsAntialias(),
       powerPreference: "low-power",
     });
   } catch (error) {
@@ -93,7 +98,7 @@ export async function createStudioMark(
   scene.add(model, key, rim, new HemisphereLight(0xfff3d5, 0x78644e, 1.9));
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.setClearColor(0, 0);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(canvasPixelRatio(2));
   // Only the globe turns by itself. The monogram keeps the angle chosen by the visitor.
   letters.rotation.order = "XYZ";
   let targetTilt = 0;
@@ -116,7 +121,10 @@ export async function createStudioMark(
     camera.updateProjectionMatrix();
     draw();
   }
+  // Software rendering draws at 30 fps; skipped frames keep their time for the next.
+  const gate = createFrameGate();
   function frame(time: number) {
+    if (!gate(time)) return;
     // Cap the delta after a sleeping tab so the emblem resumes at its last angle.
     const elapsed = Math.max(0, Math.min(time - previous, 60));
     previous = time;

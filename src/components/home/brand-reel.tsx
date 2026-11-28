@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import {
+  type CSSProperties,
   useEffect,
   useRef,
   useState,
@@ -19,6 +20,9 @@ import styles from "./brand-logo-section.module.css";
 const logoCount = brandLogos.length;
 const finishHold = 0.7;
 const scrollViewport = "(min-height: 31rem)";
+const reelDistance = {
+  "--reel-count": String(logoCount + finishHold),
+} as CSSProperties;
 
 function reelIndex(step: number) {
   return ((step % logoCount) + logoCount) % logoCount;
@@ -47,7 +51,7 @@ export function BrandReel({ children }: { children: ReactNode }) {
   const [autoPlaying, setAutoPlaying] = useState(true);
   const visible = useVisible(stage);
   const { enabled } = useStudioMotion();
-  const renderScene = visible && enabled;
+
   const current = reelIndex(step);
 
   function showStep(next: number) {
@@ -105,16 +109,27 @@ export function BrandReel({ children }: { children: ReactNode }) {
     { scope: track, dependencies: [enabled], revertOnUpdate: true },
   );
 
+  // Build the reel the first time it comes into view, then only pause and
+  // resume it. Rebuilding it on every visit made the section stall.
   useEffect(() => {
     const panel = room.current;
     const host = stage.current;
     const surface = canvas.current;
-    if (!panel || !host || !surface || !renderScene) return;
+    if (!enabled) {
+      scene.current?.dispose();
+      scene.current = null;
+      return;
+    }
+    if (scene.current) {
+      scene.current.setRunning(visible);
+      return;
+    }
+    if (!panel || !host || !surface || !visible) return;
     let cancelled = false;
 
     void import("./brand-reel-scene")
       .then(({ mountBrandReel }) => {
-        if (cancelled) return;
+        if (cancelled || scene.current) return;
         const player = mountBrandReel(
           panel,
           host,
@@ -135,10 +150,16 @@ export function BrandReel({ children }: { children: ReactNode }) {
 
     return () => {
       cancelled = true;
+    };
+  }, [visible, enabled]);
+
+  useEffect(
+    () => () => {
       scene.current?.dispose();
       scene.current = null;
-    };
-  }, [renderScene]);
+    },
+    [],
+  );
 
   function turn(direction: number) {
     const next =
@@ -192,9 +213,11 @@ export function BrandReel({ children }: { children: ReactNode }) {
       className={`${cinema.litSet} ${styles.section}`}
       id="brands"
       aria-labelledby="brand-logos-title"
+      // The reel's scroll distance is reserved in CSS from the first paint.
+      style={reelDistance}
     >
       <div className={styles.room} ref={room}>
-        {renderScene && (
+        {enabled && (
           <canvas className={styles.canvas} ref={canvas} aria-hidden="true" />
         )}
         <div className={`container ${styles.layout}`}>

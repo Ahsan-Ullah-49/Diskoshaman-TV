@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useStudioMotion } from "@/components/studio-motion";
+import { createFrameGate } from "@/lib/render-quality";
 import { useVisible } from "@/lib/use-visible";
 import styles from "./particle-field.module.css";
 
@@ -13,6 +14,9 @@ type Well = {
 };
 
 const baseRows = 58;
+// Colour steps for batching; fine enough that the banding is not visible.
+const glowSteps = 8;
+const alphaSteps = 20;
 const nearDepth = 0.22;
 const farDepth = 1.72;
 
@@ -51,8 +55,7 @@ export function ParticleField({
     }
 
     /** 0 as the field enters from below, 1 as it leaves at the top. */
-    function scrollTravel() {
-      const bounds = surface!.getBoundingClientRect();
+    function scrollTravel(bounds: DOMRect) {
       const viewport = window.innerHeight || 1;
       return Math.min(
         1,
@@ -96,7 +99,10 @@ export function ParticleField({
         (1 - Math.exp(-elapsed * 6));
       // Scrolling rolls the ripples outward and deepens the well, so the
       // sheet answers the visitor's movement as well as the clock.
-      const travel = enabled ? scrollTravel() : 0.5;
+      const travel = enabled ? scrollTravel(bounds) : 0.5;
+      // Particles are grouped by colour and drawn in one fill per group.
+      // Thousands of separate colour changes per frame made scrolling stutter.
+      const batches = new Map<number, Path2D>();
       context!.clearRect(0, 0, width, height);
       const focal = width * 0.62;
       const horizon = height * 0.12;
@@ -161,8 +167,14 @@ export function ParticleField({
             3.6 + spot * 1.4,
             Math.max(1.1, (1.5 / depth) * (0.85 + glow * 0.7 + spot * 0.6)),
           );
-          context!.fillStyle = `rgba(${231 + glow * 20}, ${186 + glow * 40}, ${96 + glow * 80}, ${alpha})`;
-          context!.fillRect(
+          const key =
+            Math.round(glow * glowSteps) * 32 + Math.round(alpha * alphaSteps);
+          let batch = batches.get(key);
+          if (!batch) {
+            batch = new Path2D();
+            batches.set(key, batch);
+          }
+          batch.rect(
             screenX - radius / 2,
             screenY - radius / 2,
             radius,
@@ -170,10 +182,19 @@ export function ParticleField({
           );
         }
       }
+
+      for (const [key, batch] of batches) {
+        const glow = Math.floor(key / 32) / glowSteps;
+        const alpha = (key % 32) / alphaSteps;
+        context!.fillStyle = `rgba(${231 + glow * 20}, ${186 + glow * 40}, ${96 + glow * 80}, ${alpha})`;
+        context!.fill(batch);
+      }
     }
 
+    // Software rendering draws at 30 fps.
+    const gate = createFrameGate();
     function loop(time: number) {
-      draw(time);
+      if (gate(time)) draw(time);
       frame = requestAnimationFrame(loop);
     }
 

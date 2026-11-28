@@ -26,10 +26,14 @@ export function FooterDepth() {
     if (!host || !surface || !visible || scene.current) return;
     let cancelled = false;
     void import("./footer-depth-scene")
-      .then(({ mountFooterDepth }) => {
-        if (cancelled) return;
-        scene.current = mountFooterDepth(host, surface);
-        scene.current.setRunning(runningRef.current);
+      .then(({ mountFooterDepth }) => mountFooterDepth(host, surface))
+      .then((mounted) => {
+        if (cancelled || scene.current) {
+          mounted.dispose();
+          return;
+        }
+        scene.current = mounted;
+        mounted.setRunning(runningRef.current);
         host.dataset.ready = "";
       })
       .catch(() => {

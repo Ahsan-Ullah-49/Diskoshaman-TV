@@ -6,6 +6,9 @@ import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/motion";
 import { useStudioMotion } from "./studio-motion";
 
+// Wait this long after the last layout change before re-measuring scroll scenes.
+const refreshDelay = 160;
+
 export function SiteScroll() {
   const { enabled } = useStudioMotion();
   const pathname = usePathname();
@@ -13,9 +16,10 @@ export function SiteScroll() {
 
   useEffect(() => {
     if (!enabled) return;
+    // Lerp-based smoothing follows the wheel closely, so scrolling feels
+    // smooth without trailing far behind the hand.
     const scroll = new Lenis({
-      duration: 1.65,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      lerp: 0.12,
       smoothWheel: true,
       syncTouch: false,
       anchors: true,
@@ -25,6 +29,9 @@ export function SiteScroll() {
     const tick = (seconds: number) => scroll.raf(seconds * 1000);
     scroll.on("scroll", ScrollTrigger.update);
     gsap.ticker.add(tick);
+    // Lenis drives scrolling from GSAP's ticker; lag smoothing would make the
+    // page jump after a slow frame, so keep the two in lockstep.
+    gsap.ticker.lagSmoothing(0);
 
     // Stop outstanding wheel momentum as soon as the native phone menu opens.
     const menu = document.querySelector("dialog[data-mobile-navigation]");
@@ -39,6 +46,7 @@ export function SiteScroll() {
     return () => {
       observer.disconnect();
       gsap.ticker.remove(tick);
+      gsap.ticker.lagSmoothing(500, 33);
       scroll.off("scroll", ScrollTrigger.update);
       scroll.destroy();
       active.current = null;
@@ -46,19 +54,34 @@ export function SiteScroll() {
   }, [enabled]);
 
   useEffect(() => {
-    // Next restores the actual document position on navigation and browser history.
+    // Re-measure every scroll scene once the page has settled. Each refresh is
+    // costly, so bursts of changes (navigation, fonts, images and 3D scenes
+    // that load late and change the page height) are coalesced into one.
+    let timer = 0;
+    let measuredHeight = document.documentElement.scrollHeight;
     const remeasure = () => {
-      active.current?.resize();
-      ScrollTrigger.refresh();
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        active.current?.resize();
+        ScrollTrigger.refresh();
+        measuredHeight = document.documentElement.scrollHeight;
+      }, refreshDelay);
     };
-    const frame = requestAnimationFrame(remeasure);
-    // Measure again once the new page's fonts and images have settled, so
-    // scroll scenes never keep positions from the page that was just left.
-    const settle = window.setTimeout(remeasure, 700);
-    void document.fonts?.ready.then(() => requestAnimationFrame(remeasure));
+    remeasure();
+    void document.fonts?.ready.then(remeasure);
+    window.addEventListener("load", remeasure);
+
+    // Content that loads late above a pinned scene moves it; measure again,
+    // but ignore the small changes that a refresh itself can make.
+    const growth = new ResizeObserver(() => {
+      const height = document.documentElement.scrollHeight;
+      if (Math.abs(height - measuredHeight) > 24) remeasure();
+    });
+    growth.observe(document.body);
     return () => {
-      cancelAnimationFrame(frame);
-      window.clearTimeout(settle);
+      window.clearTimeout(timer);
+      window.removeEventListener("load", remeasure);
+      growth.disconnect();
     };
   }, [pathname]);
 
