@@ -2,6 +2,8 @@ import "@fontsource-variable/manrope";
 import "lenis/dist/lenis.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { preconnect } from "react-dom";
+import { MediaWarmup } from "@/components/media-warmup";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SiteScroll } from "@/components/site-scroll";
@@ -23,6 +25,11 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  // Open the connections Vimeo films need early, so players start sooner.
+  preconnect("https://player.vimeo.com");
+  preconnect("https://f.vimeocdn.com");
+  preconnect("https://i.vimeocdn.com");
+
   return (
     <html lang="en-AU" suppressHydrationWarning>
       <body>
@@ -38,6 +45,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               {children}
             </main>
             <SiteFooter />
+            <MediaWarmup />
           </StudioMotionProvider>
         </ThemeProvider>
       </body>

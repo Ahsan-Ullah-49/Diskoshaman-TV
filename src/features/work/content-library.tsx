@@ -16,45 +16,49 @@ const portraitSizes = "(min-width: 64rem) 22vw, (min-width: 44rem) 30vw, 80vw";
 
 /**
  * Films in frames: landscape films two across from tablets, portrait films
- * three or four across, and one per row on phones. Captions show each film's
- * format, such as "Short documentary", never its title.
+ * three or four across, and one per row on phones. With `row`, a short set
+ * sits side by side in one row at matching heights, landscape and portrait
+ * together. Captions show each film's format, such as "Short documentary",
+ * never its title.
  */
 export function FilmGrid({
   films,
   captions = false,
+  row = false,
 }: {
   films: Project[];
   captions?: boolean;
+  row?: boolean;
 }) {
   const landscape = films.filter((film) => !film.portrait);
   const portrait = films.filter((film) => film.portrait);
   const captionFor = (film: Project) =>
     captions ? (film.credit ?? projectCategories[film.category]) : undefined;
+  const frame = (film: Project) => (
+    <AutoplayFilm
+      key={film.slug}
+      project={film}
+      caption={captionFor(film)}
+      sizes={film.portrait ? portraitSizes : landscapeSizes}
+    />
+  );
+
+  if (row) {
+    return (
+      <ScrollReveal className={styles.row}>{films.map(frame)}</ScrollReveal>
+    );
+  }
 
   return (
     <>
       {landscape.length > 0 && (
         <ScrollReveal className={styles.landscape}>
-          {landscape.map((film) => (
-            <AutoplayFilm
-              key={film.slug}
-              project={film}
-              caption={captionFor(film)}
-              sizes={landscapeSizes}
-            />
-          ))}
+          {landscape.map(frame)}
         </ScrollReveal>
       )}
       {portrait.length > 0 && (
         <ScrollReveal className={styles.portrait}>
-          {portrait.map((film) => (
-            <AutoplayFilm
-              key={film.slug}
-              project={film}
-              caption={captionFor(film)}
-              sizes={portraitSizes}
-            />
-          ))}
+          {portrait.map(frame)}
         </ScrollReveal>
       )}
     </>

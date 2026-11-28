@@ -19,7 +19,7 @@ export type SceneFrame = {
 };
 
 export type SceneKind =
-  "aperture" | "network" | "growth" | "ribbon" | "reels" | "lens";
+  "aperture" | "network" | "growth" | "ribbon" | "reels" | "camera";
 
 type Point3 = [number, number, number];
 
@@ -559,95 +559,198 @@ function drawReels(frame: SceneFrame) {
   }
 }
 
-/* Photography: a tunnel of lens elements with soft bokeh drifting through it. */
+/* Photography: a hairline camera that turns toward the pointer and zooms its lens. */
 const bokehRandom = seeded(23);
-const bokeh = Array.from({ length: 28 }, () => ({
+const bokeh = Array.from({ length: 14 }, () => ({
   x: bokehRandom() * 2 - 1,
   y: bokehRandom() * 2 - 1,
-  size: 0.025 + bokehRandom() * 0.07,
+  size: 0.03 + bokehRandom() * 0.06,
   drift: 0.02 + bokehRandom() * 0.05,
   phase: bokehRandom() * Math.PI * 2,
 }));
 
-function drawLens(frame: SceneFrame) {
+/** The twelve edges of a box, as pairs of corners. */
+function boxEdges(
+  [x0, x1]: [number, number],
+  [y0, y1]: [number, number],
+  [z0, z1]: [number, number],
+): [Point3, Point3][] {
+  const corner = (x: number, y: number, z: number): Point3 => [x, y, z];
+  const edges: [Point3, Point3][] = [];
+  for (const y of [y0, y1])
+    for (const z of [z0, z1]) edges.push([corner(x0, y, z), corner(x1, y, z)]);
+  for (const x of [x0, x1])
+    for (const z of [z0, z1]) edges.push([corner(x, y0, z), corner(x, y1, z)]);
+  for (const x of [x0, x1])
+    for (const y of [y0, y1]) edges.push([corner(x, y, z0), corner(x, y, z1)]);
+  return edges;
+}
+
+function drawCamera(frame: SceneFrame) {
   const { context, width, height, time, pointerX, pointerY, hover } = frame;
-  const radius = Math.min(width * 0.4, height * 0.44, 420);
+  const scale = Math.min(width * 0.16, height * 0.25, 185);
   const centreX = width / 2;
   const centreY = height / 2;
-  glowPool(frame, centreX, centreY, radius * 1.2);
-  context.lineWidth = 1;
+  // A three-quarter view that sways, and turns to face a fine pointer.
+  const yaw = -0.55 + Math.sin(time * 0.22) * 0.35 + pointerX * 0.9;
+  const pitch = 0.22 + pointerY * 0.3;
+  glowPool(frame, centreX, centreY, scale * 3.4);
 
-  // Each element sits deeper in the barrel; the pointer shifts the far end.
-  const rings = 11;
-  for (let ring = 0; ring < rings; ring++) {
-    const depth = ring / (rings - 1);
-    const size = radius * (1.12 - depth * 0.82);
-    const x = centreX + pointerX * depth * radius * 0.28;
-    const y = centreY + pointerY * depth * radius * 0.28;
-    const focus = 0.5 + Math.sin(time * 0.6 - depth * 3) * 0.5;
-    context.strokeStyle = tint(
-      frame,
-      0.08 + (1 - depth) * 0.14 + focus * 0.08 + hover * 0.1,
-    );
-    context.beginPath();
-    context.arc(x, y, size, 0, Math.PI * 2);
-    context.stroke();
-    if (ring % 3 === 0) {
-      const ticks = 60;
-      const spin = time * (ring % 2 ? -0.03 : 0.03) + pointerX * hover * 0.5;
-      context.beginPath();
-      for (let tick = 0; tick < ticks; tick++) {
-        const angle = (tick / ticks) * Math.PI * 2 + spin;
-        context.moveTo(x + Math.cos(angle) * size, y + Math.sin(angle) * size);
-        context.lineTo(
-          x + Math.cos(angle) * size * 0.95,
-          y + Math.sin(angle) * size * 0.95,
-        );
-      }
-      context.stroke();
-    }
-  }
-
-  // The shutter at the back of the barrel opens as the pointer arrives.
-  const backX = centreX + pointerX * radius * 0.28;
-  const backY = centreY + pointerY * radius * 0.28;
-  const backRadius = radius * 0.3;
-  const opening =
-    backRadius * (0.35 + hover * 0.4 + Math.sin(time * 0.4) * 0.08);
-  const reach = Math.sqrt(Math.max(0, backRadius ** 2 - opening ** 2));
-  context.strokeStyle = tint(frame, 0.32 + hover * 0.15);
-  context.beginPath();
-  for (let blade = 0; blade < 7; blade++) {
-    const angle = (blade / 7) * Math.PI * 2 - time * 0.05;
-    const touchX = backX + Math.cos(angle) * opening;
-    const touchY = backY + Math.sin(angle) * opening;
-    context.moveTo(touchX, touchY);
-    context.lineTo(
-      touchX - Math.sin(angle) * reach,
-      touchY + Math.cos(angle) * reach,
-    );
-  }
-  context.stroke();
-
-  // Out-of-focus highlights; pulling focus with the pointer sharpens them.
+  // Out-of-focus highlights drift behind the camera.
   for (const light of bokeh) {
     const x =
       centreX +
-      (light.x + Math.sin(time * light.drift + light.phase) * 0.1) *
-        radius *
-        1.3;
+      (light.x + Math.sin(time * light.drift + light.phase) * 0.1) * scale * 5;
     const y =
       centreY +
-      (light.y + Math.cos(time * light.drift + light.phase) * 0.1) * radius;
-    const size = radius * light.size * (1.4 - hover * 0.5);
+      (light.y + Math.cos(time * light.drift + light.phase) * 0.1) * scale * 3;
+    const size = scale * light.size * 6 * (1.2 - hover * 0.4);
     const glow = context.createRadialGradient(x, y, 0, x, y, size);
-    glow.addColorStop(0, tint(frame, 0.05 + hover * 0.1));
-    glow.addColorStop(0.75, tint(frame, 0.08 + hover * 0.12));
+    glow.addColorStop(0, tint(frame, 0.04 + hover * 0.06));
+    glow.addColorStop(0.75, tint(frame, 0.07 + hover * 0.08));
     glow.addColorStop(1, tint(frame, 0));
     context.fillStyle = glow;
     context.beginPath();
     context.arc(x, y, size, 0, Math.PI * 2);
     context.fill();
+  }
+
+  const place = (point: Point3) =>
+    project(turn(point, yaw, pitch), centreX, centreY, scale, 7);
+  context.lineWidth = 1;
+  function segment(from: Point3, to: Point3, strength: number) {
+    const a = place(from);
+    const b = place(to);
+    const depth = (a.depth + b.depth) / 2;
+    context.strokeStyle = tint(
+      frame,
+      strength * (0.45 + (depth - 0.85) * 2.4) + hover * 0.08,
+    );
+    context.beginPath();
+    context.moveTo(a.x, a.y);
+    context.lineTo(b.x, b.y);
+    context.stroke();
+  }
+
+  // Body, grip and the viewfinder hump.
+  for (const [from, to] of boxEdges([-1.25, 1.25], [-0.7, 0.75], [-0.45, 0.45]))
+    segment(from, to, 0.5);
+  for (const [from, to] of boxEdges(
+    [-1.25, -0.72],
+    [-0.62, 0.75],
+    [-0.8, -0.45],
+  ))
+    segment(from, to, 0.42);
+  const hump: Point3[] = [
+    [-0.52, -0.7, -0.36],
+    [0.52, -0.7, -0.36],
+    [0.52, -0.7, 0.36],
+    [-0.52, -0.7, 0.36],
+    [-0.3, -1.12, -0.22],
+    [0.3, -1.12, -0.22],
+    [0.3, -1.12, 0.22],
+    [-0.3, -1.12, 0.22],
+  ];
+  for (let side = 0; side < 4; side++) {
+    segment(hump[side], hump[(side + 1) % 4], 0.45);
+    segment(hump[side + 4], hump[((side + 1) % 4) + 4], 0.45);
+    segment(hump[side], hump[side + 4], 0.45);
+  }
+
+  // Shutter button: a small disc on the top plate.
+  const button = (y: number) =>
+    Array.from({ length: 13 }, (_, step): Point3 => {
+      const angle = (step / 12) * Math.PI * 2;
+      return [0.85 + Math.cos(angle) * 0.13, y, -0.12 + Math.sin(angle) * 0.13];
+    });
+  const buttonTop = button(-0.8);
+  const buttonBase = button(-0.7);
+  for (let step = 1; step < buttonTop.length; step++) {
+    segment(buttonTop[step - 1], buttonTop[step], 0.5);
+    segment(buttonBase[step - 1], buttonBase[step], 0.35);
+  }
+
+  // The lens barrel reaches toward the viewer and zooms out while pointed at.
+  const reach = 1.05 * (1 + hover * 0.4 + Math.sin(time * 0.5) * 0.04);
+  const rings = [
+    { share: 0, radius: 0.6 },
+    { share: 0.18, radius: 0.64 },
+    { share: 0.5, radius: 0.6 },
+    { share: 0.78, radius: 0.66 },
+    { share: 1, radius: 0.7 },
+  ];
+  const ringPoints = rings.map(({ share, radius }) =>
+    Array.from({ length: 41 }, (_, step): Point3 => {
+      const angle = (step / 40) * Math.PI * 2;
+      return [
+        0.08 + Math.cos(angle) * radius,
+        0.03 + Math.sin(angle) * radius,
+        -0.45 - share * reach,
+      ];
+    }),
+  );
+  ringPoints.forEach((points) => {
+    for (let step = 1; step < points.length; step++)
+      segment(points[step - 1], points[step], 0.55);
+  });
+  for (let line = 0; line < 40; line += 5) {
+    for (let ring = 1; ring < ringPoints.length; ring++)
+      segment(ringPoints[ring - 1][line], ringPoints[ring][line], 0.3);
+  }
+
+  // Focus ring ticks turn slowly, faster under the pointer.
+  const tickTurn = time * 0.35 + pointerX * hover * 1.2;
+  const tickZ = -0.45 - 0.64 * reach;
+  for (let tick = 0; tick < 36; tick++) {
+    const angle = (tick / 36) * Math.PI * 2 + tickTurn;
+    const long = tick % 6 === 0 ? 0.07 : 0.035;
+    segment(
+      [0.08 + Math.cos(angle) * 0.62, 0.03 + Math.sin(angle) * 0.62, tickZ],
+      [
+        0.08 + Math.cos(angle) * (0.62 - long),
+        0.03 + Math.sin(angle) * (0.62 - long),
+        tickZ,
+      ],
+      0.5,
+    );
+  }
+
+  // The iris in the front glass opens as the pointer arrives.
+  const frontZ = -0.45 - reach;
+  const glass = 0.52;
+  const opening = glass * (0.32 + hover * 0.38 + Math.sin(time * 0.4) * 0.06);
+  const span = Math.sqrt(Math.max(0, glass * glass - opening * opening));
+  for (let blade = 0; blade < 7; blade++) {
+    const angle = (blade / 7) * Math.PI * 2 - time * 0.05;
+    const touchX = 0.08 + Math.cos(angle) * opening;
+    const touchY = 0.03 + Math.sin(angle) * opening;
+    segment(
+      [touchX, touchY, frontZ],
+      [
+        touchX - Math.sin(angle) * span,
+        touchY + Math.cos(angle) * span,
+        frontZ,
+      ],
+      0.6,
+    );
+  }
+
+  // Now and then the flash fires; it fires brighter with the pointer over it.
+  const flash = Math.max(0, Math.sin(time * 0.8)) ** 40 * (0.5 + hover * 0.5);
+  if (flash > 0.01) {
+    const spot = place([0, -1.12, -0.22]);
+    const glow = context.createRadialGradient(
+      spot.x,
+      spot.y,
+      0,
+      spot.x,
+      spot.y,
+      scale * 2.2,
+    );
+    glow.addColorStop(0, tint(frame, 0.55 * flash));
+    glow.addColorStop(1, tint(frame, 0));
+    context.fillStyle = glow;
+    context.fillRect(0, 0, width, height);
   }
 }
 
@@ -657,5 +760,5 @@ export const sceneDrawings: Record<SceneKind, (frame: SceneFrame) => void> = {
   growth: drawGrowth,
   ribbon: drawRibbon,
   reels: drawReels,
-  lens: drawLens,
+  camera: drawCamera,
 };

@@ -134,10 +134,11 @@
   scrollbar-gutter: stable;
 }
 
+/* A compact frame: just the film and a close button. */
 .dialog {
-  width: min(60rem, calc(100% - 2rem));
+  width: min(46rem, calc(100% - 2rem));
   max-width: none;
-  max-height: min(53rem, calc(100dvh - 2rem));
+  max-height: min(44rem, calc(100dvh - 2rem));
   padding: 0;
   overflow: auto;
   overscroll-behavior: contain;
@@ -155,22 +156,13 @@
 }
 
 .dialogBody {
-  padding: clamp(0.9rem, 2.5vw, 1.6rem);
+  padding: clamp(0.7rem, 1.8vw, 1rem);
 }
 
 .dialogHeader {
   display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 0.9rem;
-  margin-bottom: 0.9rem;
-}
-
-.dialogHeader h2 {
-  margin: 0.2rem 0 0;
-  font-size: clamp(1.25rem, 3vw, 2.3rem);
-  letter-spacing: -0.04em;
-  line-height: 1.15;
+  justify-content: flex-end;
+  margin-bottom: 0.6rem;
 }
 
 .close,
@@ -209,7 +201,7 @@
 }
 
 .dialogScreen[data-portrait="true"] {
-  width: min(100%, 19rem, 32dvh);
+  width: min(100%, 17rem, 30dvh);
   aspect-ratio: 9 / 16;
   margin-inline: auto;
 }
@@ -246,6 +238,10 @@
   margin: 0;
 }
 
+.playerActions:empty {
+  display: none;
+}
+
 .playerActions {
   display: flex;
   min-height: 2.75rem;
@@ -270,10 +266,4 @@
   padding: 0.3rem 0.9rem;
   border-radius: 999px;
   font-weight: 750;
-}
-
-.dialogSummary {
-  margin: 0.25rem 0 0;
-  color: var(--muted);
-  font-size: 0.925rem;
 }

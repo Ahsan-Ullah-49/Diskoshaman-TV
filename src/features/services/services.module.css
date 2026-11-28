@@ -146,6 +146,24 @@
     linear-gradient(180deg, var(--hero-top), var(--surface-soft));
 }
 
+/*
+ * Service pages: the header sits in the page flow above the hero, so the
+ * hero fills the rest of the screen without repeating the header's height.
+ * Its copy and buttons then fit one laptop screen.
+ */
+.serviceHero {
+  min-height: calc(100svh - var(--header-height));
+  padding-block: clamp(0.75rem, 3vh, 2rem) clamp(1.25rem, 4vh, 2.5rem);
+}
+
+.serviceHero .heroInner {
+  gap: clamp(0.55rem, 1.6svh, 1.25rem);
+}
+
+.serviceHero .heroTitle {
+  font-size: clamp(2.4rem, min(6.4vw, 9.5svh), 5.2rem);
+}
+
 .heroInner {
   position: relative;
   z-index: 1;
@@ -532,6 +550,52 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+/* On a service page How we work is lit in that service's colour, not gold. */
+.serviceNight .process {
+  background:
+    radial-gradient(
+      70% 60% at 50% 0%,
+      color-mix(in srgb, var(--service-accent) 22%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      50% 40% at 50% 100%,
+      color-mix(in srgb, var(--service-accent) 10%, transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--service-accent) 7%, #0e0d0c);
+}
+
+.serviceNight .trackFill {
+  background: linear-gradient(
+    180deg,
+    var(--service-accent),
+    color-mix(in srgb, var(--service-accent) 62%, #000)
+  );
+  box-shadow: 0 0 1rem
+    color-mix(in srgb, var(--service-accent) 55%, transparent);
+}
+
+.serviceNight .stage[data-lit] .marker {
+  background: linear-gradient(
+    140deg,
+    var(--service-accent),
+    color-mix(in srgb, var(--service-accent) 62%, #000)
+  );
+  color: #0f0e0c;
+  box-shadow: 0 0 1.6rem
+    color-mix(in srgb, var(--service-accent) 45%, transparent);
+}
+
+.serviceNight .stage[data-lit] .stageCard {
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--service-accent) 38%, transparent);
+}
+
+.serviceNight .stageCard .stageLabel {
+  color: var(--service-accent);
 }
 
 /* Related work */

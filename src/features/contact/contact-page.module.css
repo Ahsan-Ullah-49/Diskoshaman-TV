@@ -22,10 +22,10 @@
 .hero {
   position: relative;
   display: grid;
-  min-height: min(100svh, 56rem);
+  /* The header sits in the page flow above the hero, so leave its height out. */
+  min-height: min(calc(100svh - var(--header-height)), 52rem);
   align-content: center;
-  padding-block: calc(var(--header-height) + clamp(2rem, 6vh, 4rem))
-    clamp(3rem, 8vh, 5rem);
+  padding-block: clamp(1rem, 4vh, 3rem) clamp(1.5rem, 5vh, 3.5rem);
   background:
     radial-gradient(60% 50% at 50% 55%, rgb(204 152 40 / 8%), transparent 70%),
     radial-gradient(50% 40% at 85% 10%, rgb(255 255 255 / 4%), transparent 70%),
@@ -158,59 +158,21 @@
   padding-block: clamp(3rem, 7vw, 6rem) clamp(4rem, 8vw, 7rem);
 }
 
+/* A soft light from above and a quiet run of the hero's gold lines. */
 .glow {
   position: absolute;
   z-index: -1;
   inset: 0;
   overflow: hidden;
+  background:
+    radial-gradient(45% 38% at 50% 0%, rgb(231 186 96 / 11%), transparent 72%),
+    radial-gradient(40% 45% at 50% 100%, rgb(204 152 40 / 6%), transparent 70%);
   pointer-events: none;
 }
 
-.glow span {
-  position: absolute;
-  width: clamp(20rem, 45vw, 38rem);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  filter: blur(60px);
+.glow .panelWaves {
   opacity: 0.55;
-}
-
-.glow span:nth-child(1) {
-  top: 4%;
-  left: 6%;
-  background: radial-gradient(closest-side, #c9922c, transparent);
-}
-
-.glow span:nth-child(2) {
-  top: 28%;
-  right: 4%;
-  background: radial-gradient(closest-side, #8a4b23, transparent);
-}
-
-.glow span:nth-child(3) {
-  bottom: 0;
-  left: 34%;
-  background: radial-gradient(closest-side, #3c4f7a, transparent);
-  opacity: 0.4;
-}
-
-:global([data-motion="running"]) .glow span {
-  animation: glow-drift 22s ease-in-out infinite alternate;
-}
-
-:global([data-motion="running"]) .glow span:nth-child(2) {
-  animation-duration: 28s;
-  animation-direction: alternate-reverse;
-}
-
-:global([data-motion="running"]) .glow span:nth-child(3) {
-  animation-duration: 34s;
-}
-
-@keyframes glow-drift {
-  to {
-    transform: translate3d(12%, 10%, 0) scale(1.15);
-  }
+  mask: linear-gradient(transparent, #000 22%, #000 78%, transparent);
 }
 
 .cards {
@@ -335,10 +297,6 @@
   .email,
   .social {
     transition: none;
-  }
-
-  .glow span {
-    animation: none;
   }
 
   .social:is(:hover, :focus-visible) {

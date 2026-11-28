@@ -16,10 +16,12 @@ export function SiteScroll() {
 
   useEffect(() => {
     if (!enabled) return;
-    // Lerp-based smoothing follows the wheel closely, so scrolling feels
-    // smooth without trailing far behind the hand.
+    // A long exponential glide, as on premium automotive sites: each wheel
+    // movement eases out over about one and a half seconds. Touch keeps the
+    // phone's native scrolling.
     const scroll = new Lenis({
-      lerp: 0.12,
+      duration: 1.55,
+      easing: (progress) => Math.min(1, 1.001 - Math.pow(2, -10 * progress)),
       smoothWheel: true,
       syncTouch: false,
       anchors: true,

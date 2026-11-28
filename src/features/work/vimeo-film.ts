@@ -9,11 +9,23 @@ type EmbedOptions = {
   loop?: boolean;
   /** Show Vimeo's own title bar over the film. */
   title?: boolean;
+  /**
+   * Let this player keep playing when another Vimeo player on the page
+   * starts. Vimeo pauses the others by default, which stops a library of
+   * previews one after another.
+   */
+  playAlongside?: boolean;
 };
 
 export function embedUrl(
   { vimeoId, vimeoHash }: Project,
-  { autoplay = true, muted, loop = false, title = false }: EmbedOptions = {},
+  {
+    autoplay = true,
+    muted,
+    loop = false,
+    title = false,
+    playAlongside = false,
+  }: EmbedOptions = {},
 ) {
   const params = new URLSearchParams({
     h: vimeoHash,
@@ -29,6 +41,7 @@ export function embedUrl(
   });
   if (muted !== undefined) params.set("muted", muted ? "1" : "0");
   if (loop) params.set("loop", "1");
+  if (playAlongside) params.set("autopause", "0");
   return `${vimeoOrigin}/video/${vimeoId}?${params}`;
 }
 

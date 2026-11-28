@@ -13,8 +13,8 @@ import styles from "./contact-page.module.css";
 /**
  * Contact: a centred opening screen like the rest of the site, with gold
  * signal lines running behind it like a conversation drawn as sound. Below,
- * the 20-minute call and the project enquiry sit in frosted glass over
- * slowly drifting light.
+ * the 20-minute call and the project enquiry sit in frosted glass over a
+ * quieter run of the same gold lines under a soft overhead light.
  */
 export function ContactPage() {
   const event = bookingUrl();
@@ -66,11 +66,9 @@ export function ContactPage() {
         className={styles.panels}
         aria-label="Book a call or send an enquiry"
       >
-        {/* Soft drifting light gives the frosted glass something to blur. */}
+        {/* The hero's gold lines continue, dimmer, for the glass to blur. */}
         <div className={styles.glow} aria-hidden="true">
-          <span />
-          <span />
-          <span />
+          <SignalWaves className={styles.panelWaves} />
         </div>
         <ScrollReveal className={`container ${styles.cards}`}>
           <section

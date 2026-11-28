@@ -1,5 +1,10 @@
-.display,
-.heading {
+/*
+ * Shared title and room styles carry no specificity (:where), so a
+ * section's own class always wins. Client navigation can insert stylesheets
+ * in a different order, and equal-specificity rules would then let these
+ * defaults override a section's sizes until the page is reloaded.
+ */
+:where(.display, .heading) {
   margin: 0;
   font-family: "Big Shoulders", "Manrope Variable", sans-serif;
   font-weight: 700;
@@ -8,12 +13,12 @@
   text-wrap: balance;
 }
 
-.display {
+:where(.display) {
   font-size: clamp(3.55rem, 9vw, 9rem);
   letter-spacing: -0.025em;
 }
 
-.heading {
+:where(.heading) {
   font-size: clamp(2.7rem, 6.3vw, 6.3rem);
   letter-spacing: -0.02em;
 }
@@ -27,7 +32,7 @@
   text-wrap: pretty;
 }
 
-.litSet {
+:where(.litSet) {
   --ink: #faf1e5;
   --muted: #cec2b6;
   --line: #554239;

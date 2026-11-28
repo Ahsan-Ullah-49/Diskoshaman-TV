@@ -60,11 +60,12 @@
 }
 
 .subheading {
-  max-width: 32ch;
-  margin: clamp(0.7rem, 1.6vw, 1rem) 0 0;
-  color: color-mix(in srgb, #f5e8d3 72%, transparent);
-  font-size: clamp(0.98rem, 1.3vw, 1.12rem);
-  line-height: 1.5;
+  max-width: 28ch;
+  margin: clamp(0.8rem, 1.8vw, 1.15rem) 0 0;
+  color: color-mix(in srgb, #f5e8d3 82%, transparent);
+  font-size: clamp(1.12rem, 1.75vw, 1.45rem);
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .title {

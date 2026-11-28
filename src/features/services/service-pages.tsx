@@ -49,7 +49,7 @@ const serviceScenes: Record<ServiceSlug, SceneKind> = {
   "business-video-production-perth": "growth",
   "brand-film-production-perth": "ribbon",
   "social-media-reels-perth": "reels",
-  "photography-perth": "lens",
+  "photography-perth": "camera",
 };
 
 /** Photography takes its yellow through the whole page, not only the accents. */
@@ -224,7 +224,10 @@ export function ServicePage({ service }: { service: Service }) {
       className={styles.page}
       style={accentStyle(serviceAccents[service.slug], pageTints[service.slug])}
     >
-      <section className={styles.hero} aria-labelledby="service-title">
+      <section
+        className={`${styles.hero} ${styles.serviceHero}`}
+        aria-labelledby="service-title"
+      >
         <ServiceScene kind={serviceScenes[service.slug]} />
         <div className={`container ${styles.heroInner}`}>
           <Link href={pages.services.path} className={styles.back}>
@@ -271,8 +274,9 @@ export function ServicePage({ service }: { service: Service }) {
         </div>
       </section>
 
-      {/* The process and the films sit in a dark cinema band, like the rest of the site. */}
-      <div className={styles.night}>
+      {/* The process and the films sit in a dark cinema band, like the rest of
+          the site; on a service page How we work takes the service's colour. */}
+      <div className={`${styles.night} ${styles.serviceNight}`}>
         <ProcessSection />
 
         <section
@@ -291,7 +295,7 @@ export function ServicePage({ service }: { service: Service }) {
             </div>
             {/* Films play in their frames; captions name the format, not the title. */}
             <div className={styles.relatedFilms}>
-              <FilmGrid films={relatedProjects(detail.related)} captions />
+              <FilmGrid films={relatedProjects(detail.related)} captions row />
             </div>
           </div>
         </section>

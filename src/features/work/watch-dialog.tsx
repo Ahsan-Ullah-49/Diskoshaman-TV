@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { PillButton } from "@/components/pill-button";
-import { projectCategories } from "@/content/project-categories";
 import type { Project } from "@/content/projects";
 import { embedUrl, vimeoOrigin } from "./vimeo-film";
 import styles from "./work.module.css";
@@ -95,7 +94,7 @@ function VimeoFilm({
           src={project.poster}
           alt=""
           fill
-          sizes="(min-width: 65rem) 58rem, 92vw"
+          sizes="(min-width: 50rem) 44rem, 92vw"
         />
         {status !== "error" && (
           <iframe
@@ -163,7 +162,8 @@ export function WatchDialog({
     <dialog
       ref={dialog}
       className={styles.dialog}
-      aria-labelledby="watch-title"
+      // The frame shows only the film; its title is announced, not printed.
+      aria-label={project.title}
       data-lenis-prevent
       onClose={onClose}
       onClick={(event) => {
@@ -172,12 +172,6 @@ export function WatchDialog({
     >
       <div className={styles.dialogBody}>
         <div className={styles.dialogHeader}>
-          <div>
-            <p className={styles.category}>
-              {projectCategories[project.category]}
-            </p>
-            <h2 id="watch-title">{project.title}</h2>
-          </div>
           <button
             className={styles.close}
             ref={close}
@@ -198,10 +192,6 @@ export function WatchDialog({
             setAttempt((value) => value + 1);
           }}
         />
-        <p className={styles.dialogSummary}>
-          {project.summary}
-          {project.credit && ` · ${project.credit}`}
-        </p>
       </div>
     </dialog>
   );

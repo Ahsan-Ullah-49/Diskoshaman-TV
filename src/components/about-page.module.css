@@ -23,11 +23,11 @@
    fall below the fold and no empty band sits above the title. */
 .hero {
   display: grid;
-  min-height: 100svh;
+  /* The header sits in the page flow above the hero, so leave its height out. */
+  min-height: calc(100svh - var(--header-height));
   align-content: center;
   overflow: clip;
-  padding-block: calc(var(--header-height) + clamp(1rem, 3vh, 2rem))
-    clamp(1.5rem, 4vh, 3rem);
+  padding-block: clamp(0.75rem, 3vh, 2rem) clamp(1.25rem, 4vh, 2.5rem);
   background:
     radial-gradient(55% 60% at 74% 50%, rgb(70 90 140 / 14%), transparent 70%),
     radial-gradient(40% 50% at 20% 30%, rgb(204 152 40 / 7%), transparent 70%),
@@ -45,7 +45,7 @@
 .heroCopy {
   display: grid;
   justify-items: start;
-  gap: clamp(1.1rem, 2.4vw, 1.6rem);
+  gap: clamp(0.7rem, 2.2svh, 1.6rem);
   min-width: 0;
 }
 
@@ -376,6 +376,14 @@
   .actions {
     justify-self: stretch;
     justify-content: center;
+  }
+}
+
+/* Phones: the two studio cards read centred. */
+@media (max-width: 40rem) {
+  .pillar {
+    justify-items: center;
+    text-align: center;
   }
 }
 

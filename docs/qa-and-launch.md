@@ -79,6 +79,13 @@ Target 1 December 2026 if the build, content and integrations are ready and Hamm
 - Vimeo playback could not be confirmed on this machine: the headless browser has no GPU and the app's browser pane blocks Vimeo frames, and the existing Home player fails the same way there. The library keeps its posters when Vimeo does not report ready. Confirm muted autoplay in the library and Related work, the hold-to-show Back to top hint on a real phone, and a Web3Forms test submission with and without a service before release.
 - Pending client input: the Web3Forms access key, Hammad's review of the newsletter line and of the subheadings copied from the current site.
 
+## Manager review follow-up, 28 November 2026
+
+- Measured the service and About heroes at 1366 × 600 and 1366 × 540 px: the last button ends inside the viewport on Corporate, Photography, About and Contact. Checked the round header tab in the light theme, the larger Brands line, the Photography camera scene, the per-service How we work colours (Corporate and Photography) and the related films in one row (Photography: Rolex beside Coffee; Corporate: three across).
+- Vimeo does not initialise in this machine's headless browser, so muted autoplay, autopause off and continued playback after scrolling back still need a check in a desktop and a phone browser.
+- The app's browser pane loads each Vimeo player in about 22 seconds and leaves it blank (the same player page loads in under a second from this machine), so its phone view cannot show library playback. Test phones against a production server on the local network instead.
+- Navigated About to Home in the client and confirmed the Brands title keeps its own size (51.2 px at 393 px wide). Checked the compact watch dialog, the contact panels' gold lines and the centred About cards at 390 × 844 px.
+
 ## Performance evidence
 
 The local production previews used Chromium 153 and a 390 × 844 phone viewport at 2× device scale. Each run used a fresh browser context, disabled cache, 4× CPU throttling, 150 ms latency, 1.6 Mbps download and 0.75 Mbps upload. The table records the first-pass baseline from 26 November 2026.
