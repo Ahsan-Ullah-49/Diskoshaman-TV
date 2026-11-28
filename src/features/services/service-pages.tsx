@@ -1,12 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { DiagonalArrow } from "@/components/cinema/diagonal-arrow";
-import { FlipTitle } from "@/components/cinema/flip-title";
-import { FocusFrame } from "@/components/cinema/focus-frame";
 import cinema from "@/components/cinema/cinema.module.css";
-import { ParticleField } from "@/components/cinema/particle-field";
+import { IrisField } from "@/components/cinema/iris-field";
 import { ScrollReveal } from "@/components/cinema/scroll-reveal";
-import { StudioCamera } from "@/components/cinema/studio-camera";
-import { ContactBand } from "@/components/page-sections";
 import { PillLink } from "@/components/pill-link";
 import { relatedProjects } from "@/content/projects";
 import {
@@ -15,22 +13,40 @@ import {
 } from "@/content/service-details";
 import { serviceNavigation, servicePages } from "@/content/services";
 import { bookingPath, pages } from "@/content/site";
-import { productionSteps } from "@/content/studio";
 import { WorkCollection } from "@/features/work/work-collection";
+import { ProcessTimeline } from "./process-timeline";
 import { ServiceMedia } from "./service-media";
 import styles from "./services.module.css";
 
 type Service = (typeof servicePages)[number];
+type ServiceSlug = Service["slug"];
 
 type ServicePreview = {
-  slug: Service["slug"];
+  slug: ServiceSlug;
   label: string;
   path: string;
-  heading: string;
-  summary: string;
+  short: string;
   media: ServiceMediaDetails;
-  deliverables: readonly string[];
 };
+
+/**
+ * Each service has its own light, like a product colour. The accent tints
+ * the hero lens, labels and card edges; the gold call to action stays the
+ * same everywhere so the next step is always recognisable.
+ */
+const serviceAccents: Record<ServiceSlug, string> = {
+  "corporate-video-production-perth": "#2f6bd8",
+  "business-video-production-perth": "#0f8f78",
+  "brand-film-production-perth": "#b47a12",
+  "social-media-reels-perth": "#d23f7c",
+  "photography-perth": "#7a6a4f",
+};
+
+const overviewAccent = "#b47a12";
+
+function accentStyle(accent: string) {
+  return { "--service-accent": accent } as CSSProperties;
+}
 
 function getServicePreview({
   slug,
@@ -43,10 +59,8 @@ function getServicePreview({
     slug,
     label,
     path: service.path,
-    heading: service.heading,
-    summary: service.intro,
+    short: detail.short,
     media: detail.media,
-    deliverables: detail.deliverables.map(({ title }) => title),
   };
 }
 
@@ -54,56 +68,63 @@ const publishedServices = serviceNavigation.map(getServicePreview);
 
 /** The five services in menu order, with the short line and lead frame the home showcase needs. */
 export const homeServices = publishedServices.map(
-  ({ slug, label, path, media }) => ({
+  ({ slug, label, path, media, short }) => ({
     slug,
     label,
     path,
-    short: serviceDetails[slug].short,
+    short,
     image: media.frames[0].src,
   }),
 );
 
 export type HomeService = (typeof homeServices)[number];
 
-// Formats named in the studio's existing services copy.
-const otherFormats = [
-  "Commercials",
-  "Promotional video",
-  "Documentary series",
-  "Educational content",
-  "Drone filming",
-  "Post-production",
-];
-
-const number = (index: number) => String(index + 1).padStart(2, "0");
-
-/** Split a heading so its last word can take the gold accent line. */
-function titleLines(heading: string) {
-  const words = heading.split(" ");
-  return words.length > 1
-    ? [words.slice(0, -1).join(" "), words[words.length - 1]]
-    : words;
+/** A service card: picture, name, short line and a Learn more prompt. */
+function ServiceCard({
+  service,
+  sizes,
+}: {
+  service: ServicePreview;
+  sizes: string;
+}) {
+  return (
+    <Link
+      href={service.path}
+      className={styles.card}
+      style={accentStyle(serviceAccents[service.slug])}
+    >
+      <span className={styles.cardMedia}>
+        <Image src={service.media.frames[0].src} alt="" fill sizes={sizes} />
+      </span>
+      <span className={styles.cardCopy}>
+        <span className={styles.cardLabel}>{service.label}</span>
+        <span className={styles.cardShort}>{service.short}</span>
+        <span className={styles.cardMore}>
+          Learn more <span aria-hidden="true">›</span>
+        </span>
+      </span>
+    </Link>
+  );
 }
 
-/** The plan, shoot and deliver steps shared by every service page. */
-function ProcessSteps() {
+/** The plan, shoot and deliver stages shared by every service page. */
+function ProcessSection() {
   return (
-    <section className={styles.process} aria-labelledby="process-title">
+    <section
+      id="process"
+      className={styles.process}
+      aria-labelledby="process-title"
+    >
       <div className="container">
-        <FlipTitle
-          id="process-title"
-          label="How we work"
-          words={["From brief", "to final cut"]}
-        />
-        <ScrollReveal className={styles.steps}>
-          {productionSteps.map(({ title, description }, index) => (
-            <article key={title} className={styles.step} data-reveal>
-              <span className={styles.stepNumber}>{number(index)}</span>
-              <h3>{title}</h3>
-              <p>{description}</p>
-            </article>
-          ))}
-        </ScrollReveal>
+        <div className={styles.sectionHead}>
+          <h2 id="process-title" className={styles.sectionTitle}>
+            How we work
+          </h2>
+          <p className={styles.lede}>
+            Three stages, agreed with you before the camera rolls.
+          </p>
+        </div>
+        <ProcessTimeline />
       </div>
     </section>
   );
@@ -111,166 +132,115 @@ function ProcessSteps() {
 
 export function ServicesPage() {
   return (
-    <>
+    <div className={styles.page} style={accentStyle(overviewAccent)}>
+      <section className={styles.hero} aria-labelledby="services-title">
+        <IrisField />
+        <div className={`container ${styles.heroInner}`}>
+          <p className={styles.eyebrow}>Perth video and photography studio</p>
+          <h1 id="services-title" className={styles.heroTitle}>
+            Production services
+          </h1>
+          <p className={styles.lede}>{pages.services.intro}</p>
+          <div className={styles.actions}>
+            <PillLink href={bookingPath}>Book a call</PillLink>
+            <PillLink href="#services" variant="secondary" arrow="right">
+              See the services
+            </PillLink>
+          </div>
+        </div>
+      </section>
+
       <section
-        className={`${cinema.litSet} ${styles.stage}`}
-        aria-labelledby="services-title"
+        id="services"
+        className={styles.lineup}
+        aria-labelledby="lineup-title"
       >
-        <ParticleField well={{ x: 0.74, z: 0.4 }} />
-        <div className={`container ${styles.hero}`}>
-          <div className={styles.heroCopy}>
-            <FlipTitle
-              as="h1"
-              id="services-title"
-              label="Perth production studio"
-              words={["Production", "Services"]}
-              size="display"
-            />
-            <p className={styles.lede}>{pages.services.intro}</p>
-            <div className={styles.actions}>
-              <PillLink href={bookingPath}>Book a call</PillLink>
-              <PillLink
-                href={pages.work.path}
-                variant="secondary"
-                arrow="right"
-              >
-                View our work
-              </PillLink>
-            </div>
-          </div>
-          <div className={styles.heroCamera}>
-            <StudioCamera assemble="load" />
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.chapters} aria-label="Our services">
         <div className="container">
-          {publishedServices.map((service, index) => (
-            <ScrollReveal key={service.slug} className={styles.chapter}>
-              <article
-                id={service.slug}
-                className={styles.chapterInner}
-                data-flip={index % 2 === 1 || undefined}
-              >
-                <div className={styles.chapterMedia} data-reveal>
-                  <FocusFrame>
-                    <ServiceMedia
-                      title={service.heading}
-                      media={service.media}
-                    />
-                  </FocusFrame>
-                </div>
-                <div className={styles.chapterCopy}>
-                  <span className={styles.chapterNumber} data-reveal>
-                    {number(index)}
-                  </span>
-                  <h2 data-reveal>{service.heading}</h2>
-                  <p data-reveal>{service.summary}</p>
-                  <ul className={styles.tags} data-reveal>
-                    {service.deliverables.map((title) => (
-                      <li key={title}>{title}</li>
-                    ))}
-                  </ul>
-                  <div data-reveal>
-                    <PillLink href={service.path}>
-                      Explore {service.label.toLowerCase()}
-                    </PillLink>
-                  </div>
-                </div>
-              </article>
-            </ScrollReveal>
-          ))}
+          <div className={styles.sectionHead}>
+            <h2 id="lineup-title" className={styles.sectionTitle}>
+              Our services
+            </h2>
+          </div>
+          <ul className={styles.cardGrid}>
+            {publishedServices.map((service) => (
+              <li key={service.slug} id={service.slug}>
+                <ServiceCard
+                  service={service}
+                  sizes="(min-width: 64rem) 30vw, (min-width: 40rem) 46vw, 92vw"
+                />
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      <ProcessSteps />
-
-      <section className={styles.formats} aria-labelledby="formats-title">
-        <ScrollReveal className={`container ${styles.formatsPanel}`}>
-          <FlipTitle
-            id="formats-title"
-            label="Also on request"
-            words={["Other", "formats"]}
-          />
-          <div>
-            <ul className={styles.tags} data-reveal>
-              {otherFormats.map((format) => (
-                <li key={format}>{format}</li>
-              ))}
-            </ul>
-            <div data-reveal>
-              <Link href={pages.work.path} className={cinema.lineLink}>
-                Browse our work <DiagonalArrow />
-              </Link>
-            </div>
-          </div>
-        </ScrollReveal>
-      </section>
-
-      <ContactBand />
-    </>
+      {/* The process sits in a dark cinema band, like the rest of the site. */}
+      <div className={styles.night}>
+        <ProcessSection />
+      </div>
+    </div>
   );
 }
 
 export function ServicePage({ service }: { service: Service }) {
   const detail = serviceDetails[service.slug];
+  const label =
+    serviceNavigation.find(({ slug }) => slug === service.slug)?.label ??
+    service.heading;
   const otherServices = publishedServices.filter(
     ({ slug }) => slug !== service.slug,
   );
 
   return (
-    <>
-      <section
-        className={`${cinema.litSet} ${styles.stage}`}
-        aria-labelledby="service-title"
-      >
-        <ParticleField well={{ x: 0.72, z: 0.45 }} />
-        <div className={`container ${styles.hero}`}>
-          <div className={styles.heroCopy}>
-            <Link href={pages.services.path} className={styles.back}>
-              <span aria-hidden="true">←</span> All services
-            </Link>
-            <FlipTitle
-              as="h1"
-              id="service-title"
-              words={titleLines(service.heading)}
-              size="display"
-            />
-            <p className={styles.lede}>{service.intro}</p>
-            <div className={styles.actions}>
-              <PillLink href={bookingPath}>Discuss your project</PillLink>
-              <PillLink
-                href={`${pages.contact.path}#enquiry`}
-                variant="secondary"
-                arrow="right"
-              >
-                Send an enquiry
-              </PillLink>
-            </div>
-          </div>
-          <div className={styles.heroMedia}>
-            <FocusFrame>
-              <ServiceMedia title={service.heading} media={detail.media} />
-            </FocusFrame>
+    <div
+      className={styles.page}
+      style={accentStyle(serviceAccents[service.slug])}
+    >
+      <section className={styles.hero} aria-labelledby="service-title">
+        <IrisField />
+        <div className={`container ${styles.heroInner}`}>
+          <Link href={pages.services.path} className={styles.back}>
+            <span aria-hidden="true">‹</span> All services
+          </Link>
+          <p className={styles.eyebrow}>{label}</p>
+          <h1 id="service-title" className={styles.heroTitle}>
+            {service.heading}
+          </h1>
+          <p className={styles.lede}>{service.intro}</p>
+          <div className={styles.actions}>
+            <PillLink href={bookingPath}>Discuss your project</PillLink>
+            <PillLink
+              href={`${pages.contact.path}#enquiry`}
+              variant="secondary"
+              arrow="right"
+            >
+              Send an enquiry
+            </PillLink>
           </div>
         </div>
       </section>
 
-      <section className={styles.detail} aria-labelledby="service-deliverables">
-        <div className={`container ${styles.detailLayout}`}>
-          <div className={styles.detailIntro}>
-            <FlipTitle
-              id="service-deliverables"
-              label="Deliverables"
-              words={["What we", "make"]}
-            />
-            <p className={styles.lede}>{detail.body}</p>
+      <section className={styles.showcase} aria-label={`${label} example`}>
+        <div className={`container ${styles.showcaseInner}`}>
+          <ServiceMedia title={service.heading} media={detail.media} />
+          <p className={styles.statementText}>{detail.body}</p>
+        </div>
+      </section>
+
+      <section
+        id="deliverables"
+        className={styles.lineup}
+        aria-labelledby="service-deliverables"
+      >
+        <div className="container">
+          <div className={styles.sectionHead}>
+            <h2 id="service-deliverables" className={styles.sectionTitle}>
+              What you get
+            </h2>
           </div>
           <ScrollReveal className={styles.deliverables}>
-            {detail.deliverables.map(({ title, description }, index) => (
+            {detail.deliverables.map(({ title, description }) => (
               <article key={title} className={styles.deliverable} data-reveal>
-                <span className={styles.stepNumber}>{number(index)}</span>
                 <h3>{title}</h3>
                 <p>{description}</p>
               </article>
@@ -279,43 +249,46 @@ export function ServicePage({ service }: { service: Service }) {
         </div>
       </section>
 
-      <ProcessSteps />
+      {/* The process and the films sit in a dark cinema band, like the rest of the site. */}
+      <div className={styles.night}>
+        <ProcessSection />
 
-      <section className={styles.related} aria-labelledby="related-title">
-        <div className="container">
-          <div className={styles.relatedHeading}>
-            <FlipTitle
-              id="related-title"
-              label="Selected films"
-              words={["Related", "work"]}
-            />
-            <Link href={pages.work.path} className={cinema.lineLink}>
-              Browse all films <DiagonalArrow />
-            </Link>
+        <section
+          id="work"
+          className={styles.related}
+          aria-labelledby="related-title"
+        >
+          <div className="container">
+            <div className={styles.relatedHead}>
+              <h2 id="related-title" className={styles.sectionTitle}>
+                Related work
+              </h2>
+              <Link href={pages.work.path} className={cinema.lineLink}>
+                Browse all films <DiagonalArrow />
+              </Link>
+            </div>
+            <WorkCollection projects={relatedProjects(detail.related)} />
           </div>
-          <WorkCollection projects={relatedProjects(detail.related)} />
-        </div>
-      </section>
+        </section>
+      </div>
 
       <nav className={styles.more} aria-labelledby="more-services">
         <div className="container">
-          <h2 id="more-services" className={styles.moreTitle}>
+          <h2 id="more-services" className={styles.sectionTitle}>
             More services
           </h2>
-          <ul>
+          <ul className={styles.moreGrid}>
             {otherServices.map((other) => (
               <li key={other.slug}>
-                <Link href={other.path}>
-                  {other.label}
-                  <DiagonalArrow />
-                </Link>
+                <ServiceCard
+                  service={other}
+                  sizes="(min-width: 64rem) 22vw, (min-width: 40rem) 46vw, 92vw"
+                />
               </li>
             ))}
           </ul>
         </div>
       </nav>
-
-      <ContactBand />
-    </>
+    </div>
   );
 }

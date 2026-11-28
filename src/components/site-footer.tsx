@@ -6,7 +6,8 @@ import { formMode } from "@/features/contact/delivery";
 import { StudioForm } from "@/features/contact/studio-form";
 import { BackToTop } from "./back-to-top";
 import { StudioMark } from "./brand/studio-mark";
-import { ParticleField } from "./cinema/particle-field";
+import { FooterDepth } from "./cinema/footer-depth";
+import { WaveRibbon } from "./cinema/wave-ribbon";
 import { FooterWordmark } from "./footer-wordmark";
 import { SocialIcon } from "./social-icon";
 import styles from "./site-footer.module.css";
@@ -57,9 +58,9 @@ function FooterLinks({
 export function SiteFooter() {
   return (
     <footer className={styles.footer}>
-      <ParticleField well={{ x: 0.5, z: 0.55 }} className={styles.field} />
-      <div className={styles.content}>
-        {/* One full-width pane of frosted glass over the moving particles. */}
+      {/* Links and newsletter: frosted glass over a 3D field of drifting studio objects. */}
+      <div className={styles.upper}>
+        <FooterDepth />
         <div className={styles.glass}>
           <div className={`container ${styles.layout}`}>
             <div className={styles.studio}>
@@ -100,7 +101,11 @@ export function SiteFooter() {
             </section>
           </div>
         </div>
+      </div>
 
+      {/* Sign-off: the wordmark and copyright on their own quiet, minimal stage. */}
+      <div className={styles.signoff}>
+        <WaveRibbon className={styles.ribbon} />
         <FooterWordmark />
 
         <div className={`container ${styles.base}`}>

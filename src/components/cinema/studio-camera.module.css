@@ -4,6 +4,11 @@
   min-width: 0;
   aspect-ratio: 1.15;
   place-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stage[data-interactive] {
+  cursor: pointer;
 }
 
 /* Studio logo shown until the camera renders, and when WebGL is unavailable. */
@@ -36,6 +41,175 @@
   opacity: 0;
 }
 
+/* Viewfinder overlay */
+
+.viewfinder {
+  --frame: 9%;
+  --lock: var(--bright-gold);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+
+.stage[data-focused] .viewfinder {
+  opacity: 1;
+}
+
+.bracket {
+  position: absolute;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0 solid rgb(255 248 233 / 70%);
+  transition:
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms ease 380ms;
+}
+
+.topLeft {
+  top: var(--frame);
+  left: var(--frame);
+  border-width: 2px 0 0 2px;
+  transform: translate(-1.4rem, -1.4rem);
+}
+
+.topRight {
+  top: var(--frame);
+  right: var(--frame);
+  border-width: 2px 2px 0 0;
+  transform: translate(1.4rem, -1.4rem);
+}
+
+.bottomLeft {
+  bottom: var(--frame);
+  left: var(--frame);
+  border-width: 0 0 2px 2px;
+  transform: translate(-1.4rem, 1.4rem);
+}
+
+.bottomRight {
+  right: var(--frame);
+  bottom: var(--frame);
+  border-width: 0 2px 2px 0;
+  transform: translate(1.4rem, 1.4rem);
+}
+
+/* Brackets close in, then turn gold as focus locks. */
+.stage[data-focused] .bracket {
+  border-color: var(--lock);
+  transform: none;
+}
+
+.afPoint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3.2rem;
+  height: 2.2rem;
+  margin: -1.1rem 0 0 -1.6rem;
+  border: 1.5px solid rgb(255 248 233 / 55%);
+  border-radius: 0.2rem;
+  transform: scale(1.5);
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1) 120ms,
+    border-color 200ms ease 420ms,
+    box-shadow 200ms ease 420ms;
+}
+
+.stage[data-focused] .afPoint {
+  border-color: var(--lock);
+  box-shadow: 0 0 1.2rem rgb(231 186 96 / 45%);
+  transform: scale(1);
+}
+
+.readout {
+  position: absolute;
+  right: var(--frame);
+  bottom: calc(var(--frame) - 2.1rem);
+  left: var(--frame);
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.7rem, 2.4vw, 1.4rem);
+  color: rgb(255 248 233 / 86%);
+  font-family: "Big Shoulders", "Arial Narrow", sans-serif;
+  font-size: clamp(0.85rem, 1.3vw, 1rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 6px rgb(0 0 0 / 70%);
+}
+
+.count {
+  color: var(--lock);
+}
+
+/* White flash that fills the frame for a moment after each shot. */
+.flash {
+  position: absolute;
+  inset: -8%;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 252 240 / 85%),
+    rgb(255 228 170 / 30%) 55%,
+    transparent
+  );
+  opacity: 0;
+  pointer-events: none;
+  animation: shutter-flash 520ms ease-out;
+}
+
+@keyframes shutter-flash {
+  8% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.hint {
+  position: absolute;
+  bottom: 0.2rem;
+  left: 50%;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid rgb(231 186 96 / 30%);
+  border-radius: 999px;
+  background: rgb(14 12 9 / 55%);
+  color: rgb(255 248 233 / 78%);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-50%);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.stage[data-interactive] .hint {
+  opacity: 1;
+}
+
+.stage[data-focused] .hint {
+  opacity: 0;
+}
+
+.hintTouch {
+  display: none;
+}
+
+@media (hover: none) {
+  .hintPointer {
+    display: none;
+  }
+
+  .hintTouch {
+    display: inline;
+  }
+}
+
 @media (max-width: 50.99rem) {
   .stage {
     aspect-ratio: 1;
@@ -44,7 +218,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .fallback,
-  .canvas {
+  .canvas,
+  .viewfinder,
+  .bracket,
+  .afPoint,
+  .hint {
     transition: none;
+  }
+
+  .flash {
+    animation: none;
   }
 }

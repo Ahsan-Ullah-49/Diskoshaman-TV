@@ -13,6 +13,20 @@ type ProjectRecord = {
 
 export type Project = ProjectRecord & { poster: string };
 
+export type HomeScreeningFilm = {
+  project: Project;
+  category: string;
+  label: string;
+  seconds: number;
+};
+
+export type HomeScreeningProgram = readonly [
+  HomeScreeningFilm,
+  HomeScreeningFilm,
+  HomeScreeningFilm,
+  HomeScreeningFilm,
+];
+
 const portfolio: ProjectRecord[] = [
   {
     slug: "rio-tinto",
@@ -293,11 +307,6 @@ if (projectsBySlug.size !== projects.length) {
 }
 
 export const featuredProject = projects[0];
-export const featuredProjects = relatedProjects([
-  "beast-philanthropy",
-  "birth-of-the-automobile",
-  "running-and-cycling",
-]);
 
 export function relatedProjects(slugs: readonly string[]) {
   return slugs.map((slug) => {
@@ -310,4 +319,44 @@ export function relatedProjects(slugs: readonly string[]) {
 export function createFilmSelection(first: string, ...following: string[]) {
   const [lead, ...films] = relatedProjects([first, ...following]);
   return [lead, ...films] as const;
+}
+
+const [rioTinto, beastPhilanthropy, facilityTour, birthOfTheAutomobile] =
+  createFilmSelection(
+    "rio-tinto",
+    "beast-philanthropy",
+    "patrick-bet-david-facility-tour",
+    "birth-of-the-automobile",
+  );
+
+// Home follows the published library categories. Work files films by format.
+export const homeScreeningFilms = [
+  {
+    project: rioTinto,
+    category: "Corporate & Investor Communications",
+    label: "Rio Tinto",
+    seconds: 107,
+  },
+  {
+    project: beastPhilanthropy,
+    category: "Brand Collaborations",
+    label: "Beast Philanthropy",
+    seconds: 150,
+  },
+  {
+    project: facilityTour,
+    category: "Executive & Creator Highlights",
+    label: "Patrick Bet-David: Facility Tour",
+    seconds: 108,
+  },
+  {
+    project: birthOfTheAutomobile,
+    category: "Long-Form Cinematic Projects",
+    label: "The Birth of the Automobile",
+    seconds: 459,
+  },
+] as const satisfies HomeScreeningProgram;
+
+if (homeScreeningFilms.some(({ project }) => project.portrait)) {
+  throw new Error("Home screenings need landscape films.");
 }

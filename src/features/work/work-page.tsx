@@ -1,7 +1,6 @@
 import { FlipTitle } from "@/components/cinema/flip-title";
 import { ProjectorDust } from "@/components/cinema/projector-dust";
 import { ScrollReveal } from "@/components/cinema/scroll-reveal";
-import { ContactBand } from "@/components/page-sections";
 import { PillLink } from "@/components/pill-link";
 import { createFilmSelection, projects } from "@/content/projects";
 import { bookingPath, pages } from "@/content/site";
@@ -84,8 +83,6 @@ export function WorkPage() {
           </ScrollReveal>
         </div>
       </section>
-
-      <ContactBand title="Have a film in mind?" />
     </>
   );
 }

@@ -2,22 +2,24 @@
  * Home services: an editorial index beside the production camera, over the
  * gold particle field. Hover and focus light a row in gold glass.
  */
+/* Phones: heading, camera, then the list. Wide: the camera sits beside both. */
 .showcase {
   position: relative;
   z-index: 1;
   display: grid;
-  align-items: center;
-  gap: clamp(2rem, 5vw, 4rem);
-}
-
-.copy {
-  position: relative;
-  min-width: 0;
+  grid-template-areas:
+    "heading"
+    "camera"
+    "list";
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: clamp(1.4rem, 4vw, 2.4rem);
 }
 
 /* Title: the same treatment as the studio story's name. */
 .heading {
-  margin: 0 0 clamp(1.8rem, 4vw, 3rem);
+  grid-area: heading;
+  min-width: 0;
+  margin: 0;
   line-height: 1;
   container-type: inline-size;
 }
@@ -71,6 +73,8 @@
 /* Index */
 
 .list {
+  grid-area: list;
+  min-width: 0;
   margin: 0;
   padding: 0;
   border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
@@ -198,12 +202,23 @@
 
 .camera {
   position: relative;
+  grid-area: camera;
   min-width: 0;
 }
 
 @media (min-width: 51rem) {
   .showcase {
+    grid-template-areas:
+      "heading camera"
+      "list camera";
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(2rem, 5vw, 4rem);
+  }
+
+  /* The whole block is held on screen while scrolling builds the camera. */
+  .camera {
+    align-self: center;
   }
 }
 

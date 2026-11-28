@@ -1,5 +1,5 @@
 /*
- * Footer: moving gold particles under one full-width pane of frosted glass,
+ * Footer: a 3D field of drifting studio objects under one full-width pane of frosted glass,
  * like a sheet of Apple glass, then the oversized wordmark that lights up
  * under the pointer.
  */
@@ -30,18 +30,47 @@
   isolation: isolate;
   container-type: inline-size;
   overflow: hidden;
-  background:
-    radial-gradient(70% 60% at 50% 0%, rgb(255 255 255 / 5%), transparent 70%),
-    #08080a;
+  background: #070607;
   color: var(--muted);
   color-scheme: dark;
 }
 
-.field {
-  opacity: 0.9;
+/* The 3D field fills only the links and newsletter area, behind the glass. */
+.upper {
+  position: relative;
+  isolation: isolate;
 }
 
-.content {
+.upper .glass {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * The sign-off band is deliberately quiet: flat near-black with one soft
+ * overhead light on the wordmark and a hairline above, so the name reads
+ * cleanly with nothing moving behind it.
+ */
+.signoff {
+  position: relative;
+  padding-top: clamp(1.8rem, 4.5vw, 3.4rem);
+  border-top: 1px solid rgb(255 255 255 / 6%);
+  background:
+    radial-gradient(
+      48% 75% at 50% 0%,
+      rgb(255 244 222 / 5.5%),
+      transparent 72%
+    ),
+    #050505;
+}
+/* A fine ribbon of gold lines flows behind the name, above the copyright row. */
+.signoff .ribbon {
+  inset: 0 0 4.6rem;
+  height: auto;
+  opacity: 0.9;
+}
+.signoff .wordmark,
+.signoff .base {
   position: relative;
   z-index: 1;
 }
@@ -217,7 +246,7 @@
   --spot-size: 0px;
   position: relative;
   display: grid;
-  margin-top: clamp(1.5rem, 4vw, 3rem);
+  margin-top: 0;
   padding-inline: 2cqi;
   font-family: "Big Shoulders", "Manrope Variable", sans-serif;
   /* "DISKOSHAMAN TV" is about 6.3em wide; fill the footer edge to edge. */
@@ -247,15 +276,18 @@
   margin-inline-start: 0.12em;
 }
 
+/* Solid, sculpted letters sit in front of the 3D background; nothing shows through them. */
 .wordBase {
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--ink) 26%, transparent) 0%,
-    color-mix(in srgb, var(--ink) 9%, transparent) 55%,
-    transparent 100%
+    #57524a 0%,
+    #2a2723 38%,
+    #141311 72%,
+    #0b0a09 100%
   );
   background-clip: text;
   color: transparent;
+  filter: drop-shadow(0 0.03em 0.06em rgb(0 0 0 / 70%));
 }
 
 /* Molten gold under a soft spotlight that follows the pointer. */
@@ -365,6 +397,44 @@
 
 .top:is(:hover, :focus-visible) span {
   transform: translateY(-3px);
+}
+
+/* Phones and tablets: the emblem leads the footer, centred and larger. */
+@media (max-width: 67.99rem) {
+  .studio {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .emblem {
+    width: clamp(10.5rem, 44cqi, 13rem);
+    height: clamp(10.5rem, 44cqi, 13rem);
+  }
+}
+
+/* Phones keep Back to top small and on the right, beside the copyright. */
+@media (max-width: 40rem) {
+  .base {
+    flex-wrap: nowrap;
+    font-size: 0.78rem;
+  }
+
+  .base small {
+    min-width: 0;
+  }
+
+  .top {
+    flex: none;
+    min-height: 2.5rem;
+    gap: 0.45rem;
+    padding: 0.2rem 0.25rem 0.2rem 0.75rem;
+    font-size: 0.76rem;
+  }
+
+  .top span {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
 }
 
 @media (min-width: 68rem) {

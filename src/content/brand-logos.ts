@@ -12,13 +12,13 @@ export function brandLogoSource({ slug }: BrandLogo) {
 
 // Artwork from the published homepage's client-logo section.
 export const brandLogos: readonly BrandLogo[] = [
+  { name: "Apple", slug: "apple", width: 164, height: 196 },
   { name: "Campos Racing", slug: "campos-racing", width: 440, height: 103 },
   { name: "BMW", slug: "bmw", width: 210, height: 210 },
   { name: "Tesla", slug: "tesla", width: 143, height: 185 },
   { name: "Bugatti", slug: "bugatti", width: 359, height: 183 },
   { name: "Danube Group", slug: "danube-group", width: 440, height: 39 },
   { name: "Viome", slug: "viome", width: 336, height: 45 },
-  { name: "Apple", slug: "apple", width: 164, height: 196 },
   { name: "Nissan", slug: "nissan", width: 245, height: 210 },
   {
     name: "Aubrey Marcus Podcast",

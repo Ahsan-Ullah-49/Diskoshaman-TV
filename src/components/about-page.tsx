@@ -8,7 +8,6 @@ import { FocusFrame } from "./cinema/focus-frame";
 import cinema from "./cinema/cinema.module.css";
 import { OrbitField } from "./cinema/orbit-field";
 import { ScrollReveal } from "./cinema/scroll-reveal";
-import { ContactBand } from "./page-sections";
 import { PillLink } from "./pill-link";
 import styles from "./about-page.module.css";
 
@@ -167,8 +166,6 @@ export function AboutPage() {
           </ScrollReveal>
         </div>
       </section>
-
-      <ContactBand />
     </>
   );
 }

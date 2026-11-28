@@ -1,15 +1,20 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { brandLogoSource, brandLogos } from "@/content/brand-logos";
+import { createReelAtmosphere } from "./brand-reel-atmosphere";
 
 const radius = 3.14;
 const slideWidth = 1.16;
 const slideHeight = 0.83;
 const spindleTop = -0.202;
 const turnPerLogo = (Math.PI * 2) / brandLogos.length;
+const idleDelay = 1450;
+const idleLogosPerSecond = 0.3;
 
 export type BrandReelScene = {
-  select: (step: number) => void;
+  followScroll: (turn: number, finished: boolean) => void;
+  turnBy: (direction: number) => number;
+  setAutoRotation: (playing: boolean) => void;
   drag: (distance: number) => void;
   dispose: () => void;
 };
@@ -74,29 +79,30 @@ function releaseMeshes(root: THREE.Object3D) {
 
 /** Mount the credits reel and draw on demand while its stage is visible. */
 export function mountBrandReel(
+  room: HTMLDivElement,
   stage: HTMLDivElement,
   canvas: HTMLCanvasElement,
-  initialStep: number,
+  initialTurn: number,
+  showStep: (step: number) => void,
 ): BrandReelScene {
   const renderer = new THREE.WebGLRenderer({
     canvas,
-    alpha: true,
     antialias: true,
     powerPreference: "low-power",
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.18;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(35, 1, 0.2, 32);
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.2, 48);
+  const atmosphere = createReelAtmosphere();
   const rig = new THREE.Group();
   const reel = new THREE.Group();
   const emblemMount = new THREE.Group();
   emblemMount.position.y = spindleTop;
   emblemMount.rotation.x = -0.16;
   rig.add(reel, emblemMount);
-  scene.add(rig);
+  scene.add(atmosphere.root, rig);
 
   const brass = new THREE.MeshStandardMaterial({
     color: "#b48761",
@@ -350,18 +356,28 @@ export function mountBrandReel(
   edge.position.set(3, 3, -4);
   scene.add(key, edge);
 
-  let step = initialStep;
+  let turn = initialTurn;
+  let targetTurn = initialTurn;
+  let reportedStep = Math.round(initialTurn);
+  let scrubbing = false;
+  let alignToScroll = true;
+  let scrollCycle = 0;
+  let finished = false;
+  let autoRotation = true;
+  let lastInput = performance.now();
+  let idleSpeed = 0;
   let swipe = 0;
+  let swipeAngle = 0;
   let reveal = 0;
   let scrollChanged = true;
   let currentReveal = 0;
-  let yaw = -step * turnPerLogo;
   let pointerX = 0;
   let pointerY = 0;
   let aimX = 0;
   let aimY = 0;
   let lastFrame = 0;
-  let emblemTimer = 0;
+  let seconds = 0;
+  let idleFrame = 0;
   let emblem: { globe: THREE.Object3D; letters: THREE.Object3D } | undefined;
   const emblemLoad = new AbortController();
 
@@ -390,10 +406,15 @@ export function mountBrandReel(
   }
 
   function invalidate() {
-    window.clearTimeout(emblemTimer);
+    window.clearTimeout(idleFrame);
     if (!frame && !disposed && !contextLost) {
       frame = requestAnimationFrame(draw);
     }
+  }
+
+  function noteInput() {
+    lastInput = performance.now();
+    invalidate();
   }
 
   function draw(now: number) {
@@ -411,30 +432,60 @@ export function mountBrandReel(
 
     const frameTime = now - lastFrame;
     const elapsed = Math.min(frameTime, 32) / 1000;
+    const ambientElapsed = Math.min(frameTime, 64) / 1000;
+    seconds += ambientElapsed;
     lastFrame = now;
-    const targetYaw = -step * turnPerLogo + swipe + (1 - reveal) * 0.68;
     const settle = (value: number, target: number, rate: number) =>
       Math.abs(target - value) < 0.001
         ? target
         : THREE.MathUtils.damp(value, target, rate, elapsed);
-    yaw = settle(yaw, targetYaw, 9);
+    const canAutoRotate = autoRotation && !finished;
+    if (
+      canAutoRotate &&
+      turn === targetTurn &&
+      now - lastInput >= idleDelay &&
+      !stage.hasAttribute("data-dragging")
+    ) {
+      idleSpeed = THREE.MathUtils.damp(
+        idleSpeed,
+        idleLogosPerSecond,
+        4,
+        ambientElapsed,
+      );
+      turn += idleSpeed * ambientElapsed;
+      targetTurn = turn;
+      alignToScroll = true;
+    } else {
+      idleSpeed = 0;
+      turn = settle(turn, targetTurn, scrubbing ? 10 : 9);
+    }
+
+    swipeAngle = settle(swipeAngle, swipe, 12);
     aimX = settle(aimX, pointerX, 6);
     aimY = settle(aimY, pointerY, 6);
     currentReveal = settle(currentReveal, reveal, 8);
 
+    const yaw = -turn * turnPerLogo + swipeAngle;
     reel.rotation.y = yaw;
     rig.rotation.z = -0.075 * (1 - currentReveal) - aimX * 0.045;
     const compact = camera.aspect < 1.25;
+    const sweep = Math.sin(seconds * 0.36 + yaw * 0.54);
     camera.position.set(
-      aimX * 0.65,
-      3.5 + aimY * 0.36 + (1 - currentReveal) * 1.25,
+      aimX * 1.4 + Math.sin(seconds * 0.28) * 0.23,
+      3.5 +
+        aimY * 0.62 +
+        Math.cos(seconds * 0.24) * 0.08 +
+        (1 - currentReveal) * 1.25,
       (compact ? 8.65 : 9.12) + (1 - currentReveal) * 1.7,
     );
     camera.lookAt(0, -0.42, 0);
+    key.position.x = -4 + sweep * 1.5;
+    key.intensity = 3.65 + sweep * 0.22;
+    edge.intensity = 2.7 - sweep * 0.25;
+    atmosphere.update(seconds, yaw, aimX, aimY, sweep);
 
     if (emblem) {
-      emblem.globe.rotation.y +=
-        Math.min(frameTime, 64) * ((Math.PI * 2) / 19000);
+      emblem.globe.rotation.y += ambientElapsed * ((Math.PI * 2) / 19);
       emblem.letters.rotation.x = -Math.abs(aimY) * 0.28;
       emblem.letters.rotation.y = aimX * 0.32;
     }
@@ -452,40 +503,63 @@ export function mountBrandReel(
     }
     renderer.render(scene, camera);
 
+    const step = Math.round(turn);
     const active =
       slides[((step % slides.length) + slides.length) % slides.length];
     stage.toggleAttribute("data-reel-ready", active.artwork.visible);
+    if (step !== reportedStep) {
+      reportedStep = step;
+      showStep(step);
+    }
     if (
-      yaw !== targetYaw ||
+      turn !== targetTurn ||
+      swipeAngle !== swipe ||
       currentReveal !== reveal ||
       aimX !== pointerX ||
       aimY !== pointerY
     ) {
       invalidate();
-    } else if (emblem && active.artwork.visible) {
-      // The slow globe needs fewer frames once reel and camera motion settle.
-      emblemTimer = window.setTimeout(invalidate, 30);
+    } else {
+      // Keep the atmosphere moving at a lower cadence while the reel is settled.
+      idleFrame = window.setTimeout(invalidate, 24);
     }
   }
 
   function onScroll() {
     scrollChanged = true;
-    invalidate();
+    noteInput();
   }
 
   function resize() {
-    const { clientWidth, clientHeight } = stage;
-    if (!clientWidth || !clientHeight) return;
-    camera.aspect = clientWidth / clientHeight;
-    camera.fov = camera.aspect < 1 ? 40 : 35;
-    camera.updateProjectionMatrix();
-    renderer.setSize(clientWidth, clientHeight, false);
+    const bounds = room.getBoundingClientRect();
+    const slot = stage.getBoundingClientRect();
+    const { width, height } = bounds;
+    if (!width || !height || !slot.width || !slot.height) return;
+    const left = slot.left - bounds.left;
+    const top = slot.top - bounds.top;
+    camera.fov = slot.width / slot.height < 1 ? 40 : 35;
+    // Extend the camera to the whole room without changing the reel's layout slot.
+    camera.setViewOffset(slot.width, slot.height, -left, -top, width, height);
+    const scale = Math.min(
+      window.devicePixelRatio,
+      1.35,
+      Math.sqrt(1500000 / (width * height)),
+    );
+    renderer.setPixelRatio(scale);
+    renderer.setSize(width, height, false);
+    atmosphere.resize(
+      width,
+      height,
+      (left + slot.width / 2) / width,
+      (top + slot.height / 2) / height,
+      scale,
+    );
     onScroll();
   }
 
   function aim(event: PointerEvent) {
     if (event.pointerType !== "mouse") return;
-    const bounds = stage.getBoundingClientRect();
+    const bounds = room.getBoundingClientRect();
     pointerX =
       THREE.MathUtils.clamp(
         (event.clientX - bounds.left) / bounds.width,
@@ -511,15 +585,16 @@ export function mountBrandReel(
     contextLost = true;
     emblemLoad.abort();
     cancelAnimationFrame(frame);
-    window.clearTimeout(emblemTimer);
+    window.clearTimeout(idleFrame);
     delete stage.dataset.reelReady;
   }
 
   const observer = new ResizeObserver(resize);
+  observer.observe(room);
   observer.observe(stage);
   window.addEventListener("scroll", onScroll, { passive: true });
-  stage.addEventListener("pointermove", aim);
-  stage.addEventListener("pointerleave", recenter);
+  room.addEventListener("pointermove", aim);
+  room.addEventListener("pointerleave", recenter);
   canvas.addEventListener("webglcontextlost", showStill);
   resize();
   void loadEmblem().catch(() => {
@@ -527,26 +602,46 @@ export function mountBrandReel(
   });
 
   return {
-    select(nextStep) {
-      step = nextStep;
-      invalidate();
+    followScroll(nextTurn, completed) {
+      if (alignToScroll) {
+        // Resume on the nearest equivalent lap after a manual or idle turn.
+        scrollCycle =
+          Math.round((turn - nextTurn) / slides.length) * slides.length;
+        alignToScroll = false;
+      }
+      targetTurn = nextTurn + scrollCycle;
+      scrubbing = true;
+      finished = completed;
+      noteInput();
+    },
+    turnBy(direction) {
+      targetTurn = Math.round(targetTurn) + direction;
+      alignToScroll = true;
+      scrubbing = false;
+      noteInput();
+      return targetTurn;
+    },
+    setAutoRotation(playing) {
+      autoRotation = playing;
+      noteInput();
     },
     drag(distance) {
       swipe = THREE.MathUtils.clamp(distance / 240, -turnPerLogo, turnPerLogo);
-      invalidate();
+      noteInput();
     },
     dispose() {
       disposed = true;
       emblemLoad.abort();
       cancelAnimationFrame(frame);
-      window.clearTimeout(emblemTimer);
+      window.clearTimeout(idleFrame);
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
-      stage.removeEventListener("pointermove", aim);
-      stage.removeEventListener("pointerleave", recenter);
+      room.removeEventListener("pointermove", aim);
+      room.removeEventListener("pointerleave", recenter);
       canvas.removeEventListener("webglcontextlost", showStill);
       delete stage.dataset.reelReady;
 
+      atmosphere.dispose();
       releaseMeshes(scene);
       renderer.dispose();
       renderer.forceContextLoss();

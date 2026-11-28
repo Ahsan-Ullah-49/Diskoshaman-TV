@@ -2,10 +2,13 @@ import type { Project } from "@/content/projects";
 
 export const vimeoOrigin = "https://player.vimeo.com";
 
-export function embedUrl({ vimeoId, vimeoHash }: Project) {
+export function embedUrl(
+  { vimeoId, vimeoHash }: Project,
+  { autoplay = true, muted }: { autoplay?: boolean; muted?: boolean } = {},
+) {
   const params = new URLSearchParams({
     h: vimeoHash,
-    autoplay: "1",
+    autoplay: autoplay ? "1" : "0",
     playsinline: "1",
     dnt: "1",
     color: "cc9828",
@@ -15,5 +18,6 @@ export function embedUrl({ vimeoId, vimeoHash }: Project) {
     // Hidden on Vimeo plans that allow it, so the player keeps viewers here.
     vimeo_logo: "0",
   });
+  if (muted !== undefined) params.set("muted", muted ? "1" : "0");
   return `${vimeoOrigin}/video/${vimeoId}?${params}`;
 }
